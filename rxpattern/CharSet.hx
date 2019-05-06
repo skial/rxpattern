@@ -1,11 +1,15 @@
 package rxpattern;
-import haxe.macro.Context;
+
+#if (eval || macro)
 import haxe.macro.Expr;
+import haxe.macro.Context;
+#end
+
 import rxpattern.IntSet;
 import rxpattern.unicode.CodePoint;
 
 @:forward(length)
-abstract CharSet(IntSet)
+abstract CharSet(IntSet) from IntSet
 {
     @:extern
     public inline function new(s : IntSet)
@@ -22,17 +26,17 @@ abstract CharSet(IntSet)
     @:from
     @:extern
     public static inline function fromStringD(s: String)
-        return new CharSet(IntSet.fromIterator(CodePoint.codePointIterator(s)));
+        return new CharSet(IntSet.fromIterator(cast CodePoint.codePointIterator(s)));
 
-    macro public static function fromString(x: ExprOf<String>)
+    /*macro public static function fromString(x: ExprOf<String>)
     {
         switch (x.expr) {
         case EConst(CString(s)):
             var pos = Context.currentPos();
             try {
-                var is = IntSet.fromIterator(CodePoint.codePointIterator(s)).iterator();
+                var set = IntSet.fromIterator(cast CodePoint.codePointIterator(s)).iterator();
                 var elements = [];
-                for (c in is) {
+                for (c in set) {
                     elements.push({pos: pos, expr: ExprDef.EConst(Constant.CInt("" + c))});
                 }
                 var array = {pos: pos, expr: ExprDef.EArrayDecl(elements)};
@@ -44,6 +48,9 @@ abstract CharSet(IntSet)
         default:
             return macro rxpattern.CharSet.fromStringD($x);
         }
+    }*/
+    macro public static function fromString(x:ExprOf<String>) {
+        return rxpattern.internal.Macros._fromString(x);
     }
 
     @:extern
@@ -90,7 +97,7 @@ abstract CharSet(IntSet)
     public static inline function difference(a: CharSet, b: CharSet)
         return new CharSet(IntSet.difference(a.getCodePointSet(), b.getCodePointSet()));
 
-    #if !macro
+    #if !(eval || macro)
         private static var rxSingleCodePoint =
             #if (js || cs)
                 ~/^(?:[\u0000-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF])$/;
@@ -100,7 +107,7 @@ abstract CharSet(IntSet)
     #end
     private static function singleCodePoint(s: String): Int
     {
-        #if macro
+        #if (eval || macro)
             if (s.length == 0) {
                 throw "rxpattern.CharSet: not a single code point";
             }

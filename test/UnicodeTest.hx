@@ -1,4 +1,7 @@
+package ;
+
 import rxpattern.unicode.CodePoint;
+
 class UnicodeTest extends haxe.unit.TestCase
 {
     public function testFromCodePoint()

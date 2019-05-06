@@ -2,16 +2,18 @@
  * Utilities to construct regexp pattern strings.
  */
 package rxpattern;
+
 import rxpattern.CharSet;
-import rxpattern.UnicodePatternUtil;
 import rxpattern.unicode.CodePoint;
-import haxe.macro.Context;
+import rxpattern.UnicodePatternUtil;
+
+#if (eval || macro)
 import haxe.macro.Expr;
+import haxe.macro.Context;
+#end
 
 // An enum to describe the context of the expression
-@:enum
-abstract Precedence(Int)
-{
+enum abstract Precedence(Int) {
     var Disjunction = 0;
     var Alternative = 1;
     var Term = 2;
@@ -63,7 +65,7 @@ abstract RxPattern(Pattern)
         return new Atom(pattern);
 
     public static var AnyCodePoint(get, never): #if (js || cs) Disjunction #else Atom #end;
-    #if !macro inline #end
+    #if !(eval || macro) inline #end
     static function get_AnyCodePoint()
         #if (js || cs)
             return Disjunction("[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]");
@@ -73,7 +75,7 @@ abstract RxPattern(Pattern)
             return Atom(UnicodePatternUtil.translateUnicodeEscape("[\\u0000-\\u{10FFFF}]"));
         #end
 
-    #if !macro
+    #if !(eval || macro)
         static var rxSpecialChar = ~/^[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]$/;
     #end
     #if debug
@@ -86,7 +88,7 @@ abstract RxPattern(Pattern)
     #end
     public static function escapeChar(c: String)
     {
-        #if !macro
+        #if !(eval || macro)
             #if debug
                 if (!rxSingleCodePoint.match(c)) {
                     throw "rxpattern.RxPattern.Char: not a single character";
@@ -114,12 +116,16 @@ abstract RxPattern(Pattern)
     }
     public static function escapeString(s: String)
     {
-        #if !macro
-            return ~/[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]/g.map(s, function(e) return "\\" + e.matched(0));
-        #else
+        //#if !(eval || macro)
+            var r = ~/[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]/g.map(s, function(e) {
+                return "\\" + e.matched(0);
+            });
+            return r;
+        /*#else
             var buf = new StringBuf();
             for (i in 0...s.length) {
                 var c = s.charAt(i);
+                trace( c, "^$\\.*+?()[]{}|".indexOf(c) != -1 );
                 if ("^$\\.*+?()[]{}|".indexOf(c) != -1) {
                     buf.add("\\" + c);
                 } else {
@@ -127,7 +133,7 @@ abstract RxPattern(Pattern)
                 }
             }
             return buf.toString();
-        #end
+        #end*/
     }
 
     #if (js || cs)
@@ -146,7 +152,7 @@ abstract RxPattern(Pattern)
             }
         }
     #end
-    macro public static function Char(x: ExprOf<String>)
+    /*macro public static function Char(x: ExprOf<String>)
     {
         var useSurrogates = Context.defined("js") || Context.defined("cs");
         switch (x.expr) {
@@ -176,9 +182,12 @@ abstract RxPattern(Pattern)
                 return macro new rxpattern.RxPattern.Atom(rxpattern.RxPattern.escapeChar($x));
             }
         }
+    }*/
+    macro public static function Char(x:ExprOf<String>) {
+        return rxpattern.internal.Macros._Char(x);
     }
 
-    macro public static function String(x: ExprOf<String>)
+    /*macro public static function String(x: ExprOf<String>)
     {
         switch (x.expr) {
         case EConst(CString(s)):
@@ -205,6 +214,9 @@ abstract RxPattern(Pattern)
         default:
             return macro new rxpattern.RxPattern.Alternative(rxpattern.RxPattern.escapeString($x));
         }
+    }*/
+    macro public static function String(x:ExprOf<String>) {
+        return rxpattern.internal.Macros._String(x);
     }
 
     public static var AnyExceptNewLine(get, never): #if (js || cs) Disjunction #else Atom #end;
@@ -271,7 +283,7 @@ abstract RxPattern(Pattern)
             return c;
         }
     }
-    #if (js || cs || macro)
+    #if (js || cs || eval || macro)
         static function escapeChar_surrogate(x)
         {
             if (0xD800 <= x && x <= 0xDFFF) {
@@ -313,7 +325,7 @@ abstract RxPattern(Pattern)
                     }
                     #if (js || cs)
                         buf.add(escapeSetChar_surrogate(start));
-                    #elseif macro
+                    #elseif (eval || macro)
                         if (utf16CodeUnits) {
                             buf.add(escapeSetChar_surrogate(start));
                         } else {
@@ -328,7 +340,7 @@ abstract RxPattern(Pattern)
                         }
                         #if (js || cs)
                             buf.add(escapeSetChar_surrogate(end));
-                        #elseif macro
+                        #elseif (eval || macro)
                             if (utf16CodeUnits) {
                                 buf.add(escapeSetChar_surrogate(end));
                             } else {
@@ -346,7 +358,7 @@ abstract RxPattern(Pattern)
                 #if (js || cs)
                     var c = escapeChar_surrogate(x);
                     return Atom(c);
-                #elseif macro
+                #elseif (eval || macro)
                     if (utf16CodeUnits) {
                         var c = escapeChar_surrogate(x);
                         return Atom(c);
@@ -365,7 +377,7 @@ abstract RxPattern(Pattern)
             return Never;
         }
     }
-    #if (js || cs || macro)
+    #if (js || cs || eval || macro)
         private static function CharSet_surrogate(set: CharSet): RxPattern
         {
             var bmp = IntSet.empty();
@@ -430,7 +442,7 @@ abstract RxPattern(Pattern)
     @:extern
     public static inline function CharSet(set: CharSet)
     {
-        #if macro
+        #if (eval || macro)
             if (Context.defined("js") || Context.defined("cs")) {
                 return CharSet_surrogate(set);
             } else {
@@ -444,7 +456,7 @@ abstract RxPattern(Pattern)
     }
     @:extern
     public static inline function NotInSet(set: CharSet) {
-        #if macro
+        #if (eval || macro)
             if (Context.defined("js") || Context.defined("cs")) {
                 return NotInSet_surrogate(set);
             } else {
@@ -457,7 +469,7 @@ abstract RxPattern(Pattern)
         #end
     }
 
-    #if macro
+    #if (eval || macro)
         private static function toStatic(pat: RxPattern, pos: Position)
         {
             var e = {pos: pos, expr: ExprDef.EConst(Constant.CString(pat.get()))};
@@ -473,7 +485,7 @@ abstract RxPattern(Pattern)
             }
         }
     #end
-    macro public static function CharSetLit(s: String)
+    /*macro public static function CharSetLit(s:ExprOf<String>)
     {
         var pos = Context.currentPos();
         try {
@@ -482,8 +494,11 @@ abstract RxPattern(Pattern)
             Context.error(e, pos);
             return null;
         }
+    }*/
+    macro public static function CharSetLit(s:ExprOf<String>) {
+        return rxpattern.internal.Macros._CharSetLit(s);
     }
-    macro public static function NotInSetLit(s: String)
+    /*macro public static function NotInSetLit(s: String)
     {
         var pos = Context.currentPos();
         try {
@@ -492,6 +507,9 @@ abstract RxPattern(Pattern)
             Context.error(e, pos);
             return null;
         }
+    }*/
+    macro public static function NotInSetLit(s:ExprOf<String>) {
+        return rxpattern.internal.Macros._NotInSetLit(s);
     }
 
     @:extern

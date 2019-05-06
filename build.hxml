@@ -1,0 +1,21 @@
+-lib hx3compat
+-lib unifill
+-lib tink_macro
+
+-cp ./
+-cp test
+
+-dce full
+-D analyzer-optimize
+-D eval-stack
+
+-main Test
+
+--each
+
+-lib hxnodejs
+-js bin/rx.js
+
+--next
+
+-neko bin/rx.n

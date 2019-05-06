@@ -1,9 +1,12 @@
 package rxpattern;
-import haxe.macro.Context;
+
+#if (eval || macro)
 import haxe.macro.Expr;
+import haxe.macro.Context;
+#end
 
 /* This class is not used at runtime */
-#if !macro extern #end
+#if !(eval || macro) extern #end
 class UnicodePatternUtil
 {
     /*
@@ -74,7 +77,7 @@ class UnicodePatternUtil
         return {pos: pos, expr: ExprDef.EConst(Constant.CString(translatedBuf.toString()))};
     }
 
-    #if macro
+    #if (eval || macro)
         private static function hexToInt(c: String)
         {
             var i = "0123456789abcdef".indexOf(c.toLowerCase());
