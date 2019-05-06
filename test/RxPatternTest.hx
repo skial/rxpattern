@@ -7,17 +7,14 @@ class RxPatternTest extends haxe.unit.TestCase
 {
     public function assertPatStrEquals(s: String, p: RxPattern, ?pos: haxe.PosInfos)
     {
-        trace(s, p);
         assertEquals(s, RxPattern.getPattern(p), pos);
     }
     public function assertMatch(s: String, p, ?pos: haxe.PosInfos)
     {
-        trace(s, p);
         assertTrue(RxPattern.buildEReg(p).match(s), pos);
     }
     public function assertNotMatch(s: String, p, ?pos: haxe.PosInfos)
     {
-        trace(s, p);
         assertFalse(RxPattern.buildEReg(p).match(s), pos);
     }
 

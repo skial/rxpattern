@@ -23,7 +23,7 @@ class UnicodePatternUtil
     {
         var pos = Context.currentPos();
         var pythonStyle = Context.defined("python"); // \uHHHH or \UHHHHHHHH
-        var perlStyle = Context.defined("neko") || Context.defined("cpp") || Context.defined("php") || Context.defined("lua") || Context.defined("java"); // \x{HHHH}
+        var perlStyle = Context.defined("neko") || Context.defined("cpp") || Context.defined("php") || Context.defined("lua") || Context.defined("java") || Context.defined("hl"); // \x{HHHH}
         var jsStyle = Context.defined("js") || Context.defined("cs") || Context.defined("flash"); // \uHHHH
         var onlyBMP = Context.defined("js") || Context.defined("cs");
         var i = 0;

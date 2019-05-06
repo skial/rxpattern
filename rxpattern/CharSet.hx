@@ -28,27 +28,6 @@ abstract CharSet(IntSet) from IntSet
     public static inline function fromStringD(s: String)
         return new CharSet(IntSet.fromIterator(cast CodePoint.codePointIterator(s)));
 
-    /*macro public static function fromString(x: ExprOf<String>)
-    {
-        switch (x.expr) {
-        case EConst(CString(s)):
-            var pos = Context.currentPos();
-            try {
-                var set = IntSet.fromIterator(cast CodePoint.codePointIterator(s)).iterator();
-                var elements = [];
-                for (c in set) {
-                    elements.push({pos: pos, expr: ExprDef.EConst(Constant.CInt("" + c))});
-                }
-                var array = {pos: pos, expr: ExprDef.EArrayDecl(elements)};
-                return macro new rxpattern.CharSet(new rxpattern.IntSet($array));
-            } catch (error: String) {
-                Context.error(error, pos);
-                return null;
-            }
-        default:
-            return macro rxpattern.CharSet.fromStringD($x);
-        }
-    }*/
     macro public static function fromString(x:ExprOf<String>) {
         return rxpattern.internal.Macros._fromString(x);
     }
@@ -99,7 +78,7 @@ abstract CharSet(IntSet) from IntSet
 
     #if !(eval || macro)
         private static var rxSingleCodePoint =
-            #if (js || cs)
+            #if (js || cs || hl)
                 ~/^(?:[\u0000-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF])$/;
             #else
                 ~/^.$/us;

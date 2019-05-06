@@ -19,3 +19,7 @@
 --next
 
 -neko bin/rx.n
+
+--next
+
+-hl bin/rx.hl
