@@ -64,15 +64,19 @@ abstract RxPattern(Pattern)
     public static inline function Atom(pattern: String)
         return new Atom(pattern);
 
-    public static var AnyCodePoint(get, never): #if (js || cs || hl) Disjunction #else Atom #end;
+    public static var AnyCodePoint(get, never): #if (js || cs) Disjunction #else Atom #end;
     #if !(eval || macro) inline #end
     static function get_AnyCodePoint()
-        #if (js || cs || hl)
+        #if (js || cs)
             return Disjunction("[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]");
         #elseif flash
             return Atom("[\u0000-\u{10FFFF}]");
+        #elseif (eval || hl || neko || php)
+            return Atom("(?s:.)");
+        #elseif (python)
+            return Atom("[\\S\\s]");
         #else
-            return Atom(UnicodePatternUtil.translateUnicodeEscape("[\\u0000-\\u{10FFFF}]"));
+            return Atom(UnicodePatternUtil.translateUnicodeEscape("[\\u0000-\\u10FFFF]"));
         #end
 
     #if !(eval || macro)
@@ -80,7 +84,7 @@ abstract RxPattern(Pattern)
     #end
     #if debug
         static var rxSingleCodePoint =
-            #if (js || cs || hl)
+            #if (js || cs)
                 ~/^(?:[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF])$/u;
             #else
                 ~/^.$/us;
@@ -119,7 +123,7 @@ abstract RxPattern(Pattern)
         return ~/[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]/g.map(s, e -> "\\" + e.matched(0));
     }
 
-    #if (js || cs || hl)
+    #if (js || cs)
         public static function CharS(s: String): RxPattern
         {
             #if debug
@@ -144,9 +148,9 @@ abstract RxPattern(Pattern)
         return rxpattern.internal.Macros._String(x);
     }
 
-    public static var AnyExceptNewLine(get, never): #if (js || cs || hl) Disjunction #else Atom #end;
+    public static var AnyExceptNewLine(get, never): #if (js || cs) Disjunction #else Atom #end;
     @:extern static inline function get_AnyExceptNewLine()
-    #if (js || hl)
+    #if (js)
         return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|(?![\\uD800-\\uDFFF]).");
     #elseif cs
         return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|[^\\r\\n\\u2028\\u2029\\uD800-\\uDFFF]");
@@ -170,7 +174,7 @@ abstract RxPattern(Pattern)
     public static var AtStart(get, never): Term;
     public static var AtEnd(get, never): Term;
     @:extern static inline function get_AtStart()
-    #if (python || neko || cpp || php || lua || java || cs || flash)
+    #if (python || neko || cpp || php || lua || java || cs || flash || hl)
         return Term("\\A");
     #else
         return Term("^");
@@ -178,7 +182,7 @@ abstract RxPattern(Pattern)
     @:extern static inline function get_AtEnd()
     #if python
         return Term("\\Z");
-    #elseif (neko || cpp || php || lua || java || cs || flash)
+    #elseif (neko || cpp || php || lua || java || cs || flash || hl)
         return Term("\\z");
     #else
         return Term("$");
@@ -189,7 +193,7 @@ abstract RxPattern(Pattern)
     @:extern
     public static inline function NotFollowedBy(e: Disjunction): Term
         return Term("(?!" + e.toDisjunction() + ")");
-    #if (js || hl)
+    #if js
         public static var Never(get, never): Atom;
         @:extern static inline function get_Never()
             return Atom("[]");
@@ -208,7 +212,7 @@ abstract RxPattern(Pattern)
             return c;
         }
     }
-    #if (js || cs || hl || eval || macro)
+    #if (js || cs || eval || macro || hl)
         static function escapeChar_surrogate(x)
         {
             if (0xD800 <= x && x <= 0xDFFF) {
@@ -302,7 +306,7 @@ abstract RxPattern(Pattern)
             return Never;
         }
     }
-    #if (js || cs || hl || eval || macro)
+    #if (js || cs || eval || macro || hl)
         private static function CharSet_surrogate(set: CharSet): RxPattern
         {
             var bmp = IntSet.empty();
@@ -373,7 +377,7 @@ abstract RxPattern(Pattern)
             } else {
                 return SimpleCharSet(set, false, false);
             }
-        #elseif (js || cs || hl)
+        #elseif (js || cs)
             return CharSet_surrogate(set);
         #else
             return SimpleCharSet(set, false, false);
@@ -387,7 +391,7 @@ abstract RxPattern(Pattern)
             } else {
                 return SimpleCharSet(set, true, false);
             }
-        #elseif (js || cs || hl)
+        #elseif (js || cs)
             return NotInSet_surrogate(set);
         #else
             return SimpleCharSet(set, true, false);
@@ -454,8 +458,11 @@ abstract RxPattern(Pattern)
     public static inline function getPattern(x: Disjunction)
         return x.get();
     @:extern
-    public static inline function buildEReg(x, options = "u")
+    public static inline function buildEReg(x, options = "u") {
+        //trace(getPattern(x) );
+        //trace( options);
         return new EReg(getPattern(x), options);
+    }
 
     @:extern
     public inline function toDisjunction()

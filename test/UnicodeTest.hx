@@ -24,6 +24,7 @@ class UnicodeTest extends haxe.unit.TestCase
     {
         #if hl
         // HashLink breaks on NULL characters
+        // @see https://github.com/HaxeFoundation/haxe/issues/8201
         var it = CodePoint.codePointIterator("x\u3042\u{12345}\u{20A0}");
         #else
         var it = CodePoint.codePointIterator("\u0000x\u3042\u{12345}\u{20A0}");

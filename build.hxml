@@ -23,3 +23,11 @@
 --next
 
 -hl bin/rx.hl
+
+--next
+
+-python bin/rx.py
+
+--next
+
+-php bin/rx

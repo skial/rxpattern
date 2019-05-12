@@ -23,11 +23,23 @@ class UnicodePatternUtil
     {
         var pos = Context.currentPos();
         var pythonStyle = Context.defined("python"); // \uHHHH or \UHHHHHHHH
-        var perlStyle = Context.defined("neko") || Context.defined("cpp") || Context.defined("php") || Context.defined("lua") || Context.defined("java") || Context.defined("hl"); // \x{HHHH}
-        var jsStyle = Context.defined("js") || Context.defined("cs") || Context.defined("flash"); // \uHHHH
+        var perlStyle = Context.defined("neko") || Context.defined("cpp") || Context.defined("php") || Context.defined("lua") || Context.defined("java"); // \x{HHHH}
+        var jsStyle = Context.defined("js") || Context.defined("cs") || Context.defined("flash") || Context.defined("hl"); // \uHHHH
         var onlyBMP = Context.defined("js") || Context.defined("cs");
+        function codeprint(v:Int) {
+            var hex = StringTools.hex(v, (perlStyle) ? 0 : (pythonStyle && v > 0x10000) ? 8 : 4);
+            return if (perlStyle) {
+                '\\x{$hex}';
+
+            } else if (pythonStyle && v > 0x10000) {
+                '\\U$hex';
+            } else {
+                '\\u$hex';
+            }
+        }
         var i = 0;
         var translatedBuf = new StringBuf();
+
         while (i < s.length) {
             var j = s.indexOf("\\u", i);
             if (j == -1) {
@@ -52,29 +64,28 @@ class UnicodePatternUtil
                 value = value * 16 + hexToInt(m.charAt(l));
             }
             if (perlStyle) {
-                translatedBuf.add("\\x{" + StringTools.hex(value) + "}");
+                translatedBuf.add(codeprint(value));
             } else {
                 if (value > 0x10000) {
                     if (pythonStyle) {
-                        translatedBuf.add("\\U" + StringTools.hex(value, 8));
+                        translatedBuf.add(codeprint(value));
                     } else if (jsStyle || !onlyBMP) {
                         var hi = ((value - 0x10000) >> 10) | 0xD800;
                         var lo = ((value - 0x10000) & 0x3FF) | 0xDC00;
-                        translatedBuf.add("\\u" + StringTools.hex(hi, 4) + "\\u" + StringTools.hex(lo, 4));
+                        translatedBuf.add(codeprint(hi) + codeprint(lo));
                     } else {
                         Context.error("This platform does not support Unicode escape beyond BMP.", pos);
                         return null;
                     }
-                } else if (jsStyle || pythonStyle) {
-                    translatedBuf.add("\\u" + StringTools.hex(value, 4));
                 } else {
-                    Context.error("This platform does not support Unicode escape.", pos);
-                    return null;
+                    translatedBuf.add(codeprint(value));
                 }
             }
         }
         translatedBuf.add(s.substr(i));
-        return {pos: pos, expr: ExprDef.EConst(Constant.CString(translatedBuf.toString()))};
+        var r = translatedBuf.toString();
+        
+        return {pos: pos, expr: ExprDef.EConst(Constant.CString(r))};
     }
 
     #if (eval || macro)
