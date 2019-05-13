@@ -31,14 +31,6 @@ abstract IntSet(Array<Int>)
         }
         return set;
     }
-    public static inline function fromIterator(it: Iterator<Int>)
-    {
-        var set = empty();
-        for (x in it) {
-            set.add(x);
-        }
-        return set;
-    }
     public static inline function fromIterable(a: Iterable<Int>)
     {
         var set = empty();
