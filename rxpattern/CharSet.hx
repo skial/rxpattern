@@ -6,7 +6,9 @@ import haxe.macro.Context;
 #end
 
 import rxpattern.IntSet;
-import rxpattern.unicode.CodePoint;
+import unifill.CodePoint;
+import unifill.CodePointIter;
+import unifill.InternalEncoding;
 
 @:forward(length, iterator)
 abstract CharSet(IntSet) from IntSet
@@ -26,7 +28,7 @@ abstract CharSet(IntSet) from IntSet
     @:from
     @:extern
     public static inline function fromStringD(s: String)
-        return new CharSet(IntSet.fromIterator(cast CodePoint.codePointIterator(s)));
+        return new CharSet(IntSet.fromCodePointIterator(new CodePointIter(s)));
 
     macro public static function fromString(x:ExprOf<String>) {
         return rxpattern.internal.Macros._fromString(x);
@@ -90,8 +92,8 @@ abstract CharSet(IntSet) from IntSet
             if (s.length == 0) {
                 throw "rxpattern.CharSet: not a single code point";
             }
-            var x = CodePoint.codePointAt(s, 0);
-            if (CodePoint.fromCodePoint(x) != s) {
+            var x = InternalEncoding.codePointAt(s, 0);
+            if (CodePoint.fromInt(x) != s) {
                 throw "rxpattern.CharSet: not a single code point";
             }
         #else
@@ -99,6 +101,6 @@ abstract CharSet(IntSet) from IntSet
                 throw "rxpattern.CharSet: not a single code point";
             }
         #end
-        return CodePoint.codePointAt(s, 0);
+        return InternalEncoding.codePointAt(s, 0);
     }
 }

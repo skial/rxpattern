@@ -3,8 +3,9 @@
  */
 package rxpattern;
 
+import unifill.CodePoint;
 import rxpattern.CharSet;
-import rxpattern.unicode.CodePoint;
+import unifill.InternalEncoding;
 import rxpattern.UnicodePatternUtil;
 
 #if (eval || macro)
@@ -107,8 +108,8 @@ abstract RxPattern(Pattern)
             if (c.length == 0) {
                 throw "rxpattern.RxPattern.Char: not a single character";
             }
-            var x = CodePoint.codePointAt(c, 0);
-            if (CodePoint.fromCodePoint(x) != c) {
+            var x = InternalEncoding.codePointAt(c, 0);
+            if (CodePoint.fromInt(x) != c) {
                 throw "rxpattern.RxPattern.Char: not a single character";
             }
             if ("^$\\.*+?()[]{}|".indexOf(c) != -1) {
@@ -218,7 +219,7 @@ abstract RxPattern(Pattern)
             if (0xD800 <= x && x <= 0xDFFF) {
                 return "\\u" + StringTools.hex(x, 4);
             } else {
-                return escapeChar(CodePoint.fromCodePoint(x));
+                return escapeChar(CodePoint.fromInt(x));
             }
         }
         static function escapeSetChar_surrogate(x)
@@ -226,7 +227,7 @@ abstract RxPattern(Pattern)
             if (0xD800 <= x && x <= 0xDFFF) {
                 return "\\u" + StringTools.hex(x, 4);
             } else {
-                return escapeSetChar(CodePoint.fromCodePoint(x));
+                return escapeSetChar(CodePoint.fromInt(x));
             }
         }
     #end
@@ -258,10 +259,10 @@ abstract RxPattern(Pattern)
                         if (utf16CodeUnits) {
                             buf.add(escapeSetChar_surrogate(start));
                         } else {
-                            buf.add(escapeSetChar(CodePoint.fromCodePoint(start)));
+                            buf.add(escapeSetChar(CodePoint.fromInt(start)));
                         }
                     #else
-                        buf.add(escapeSetChar(CodePoint.fromCodePoint(start)));
+                        buf.add(escapeSetChar(CodePoint.fromInt(start)));
                     #end
                     if (start != end) {
                         if (start + 1 != end) {
@@ -273,10 +274,10 @@ abstract RxPattern(Pattern)
                             if (utf16CodeUnits) {
                                 buf.add(escapeSetChar_surrogate(end));
                             } else {
-                                buf.add(escapeSetChar(CodePoint.fromCodePoint(end)));
+                                buf.add(escapeSetChar(CodePoint.fromInt(end)));
                             }
                         #else
-                            buf.add(escapeSetChar(CodePoint.fromCodePoint(end)));
+                            buf.add(escapeSetChar(CodePoint.fromInt(end)));
                         #end
                     }
                 }
@@ -292,11 +293,11 @@ abstract RxPattern(Pattern)
                         var c = escapeChar_surrogate(x);
                         return Atom(c);
                     } else {
-                        var c = escapeChar(CodePoint.fromCodePoint(x));
+                        var c = escapeChar(CodePoint.fromInt(x));
                         return Atom(c);
                     }
                 #else
-                    var c = escapeChar(CodePoint.fromCodePoint(x));
+                    var c = escapeChar(CodePoint.fromInt(x));
                     return Atom(c);
                 #end
             }

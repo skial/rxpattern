@@ -1,9 +1,11 @@
 package rxpattern.internal;
 
 import haxe.macro.Expr;
+import unifill.CodePoint;
 import haxe.macro.Context;
 import rxpattern.RxPattern;
-import rxpattern.unicode.*;
+import unifill.CodePointIter;
+import unifill.InternalEncoding;
 
 using tink.MacroApi;
 
@@ -38,9 +40,9 @@ class Macros {
                     return null;
                 }
 
-                var y = CodePoint.codePointAt(v, 0);
+                var y = InternalEncoding.codePointAt(v, 0);
                 
-                if (CodePoint.fromCodePoint(y) != v) {
+                if (CodePoint.fromInt(y) != v) {
                     Context.error("rxpattern.RxPattern.Char: not a single character", pos);
                     return null;
                 }
@@ -119,8 +121,8 @@ class Macros {
                         return macro new rxpattern.RxPattern.Alternative($expr);
                     }
 
-                    var y = CodePoint.codePointAt(v, 0);
-                    var isSingleCodePoint = CodePoint.fromCodePoint(y) == v;
+                    var y = InternalEncoding.codePointAt(v, 0);
+                    var isSingleCodePoint = CodePoint.fromInt(y) == v;
                     if (isSingleCodePoint && (y < 0x10000 || !useSurrogates)) {
                         // Single character (or single code unit on JS and C#)
                         return macro new rxpattern.RxPattern.Atom($expr);
@@ -149,7 +151,7 @@ class Macros {
         switch x.expr {
             case EConst(CString(s)):
                 try {
-                    var set = IntSet.fromIterator(cast CodePoint.codePointIterator(s)).iterator();
+                    var set = IntSet.fromCodePointIterator(new CodePointIter(s)).iterator();
                     var elements = [for (c in set) {
                         macro $v{c};
                     }];
