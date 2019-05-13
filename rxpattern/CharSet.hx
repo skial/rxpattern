@@ -1,11 +1,11 @@
 package rxpattern;
-import haxe.macro.Context;
-import haxe.macro.Expr;
-import rxpattern.IntSet;
-import rxpattern.unicode.CodePoint;
 
-@:forward(length)
-abstract CharSet(IntSet)
+import unifill.*;
+import rxpattern.IntSet;
+import rxpattern.RxErrors;
+
+@:forward(length, iterator)
+abstract CharSet(IntSet) from IntSet
 {
     @:extern
     public inline function new(s : IntSet)
@@ -22,28 +22,10 @@ abstract CharSet(IntSet)
     @:from
     @:extern
     public static inline function fromStringD(s: String)
-        return new CharSet(IntSet.fromIterator(CodePoint.codePointIterator(s)));
+        return new CharSet(IntSet.fromCodePointIterator(new CodePointIter(s)));
 
-    macro public static function fromString(x: ExprOf<String>)
-    {
-        switch (x.expr) {
-        case EConst(CString(s)):
-            var pos = Context.currentPos();
-            try {
-                var is = IntSet.fromIterator(CodePoint.codePointIterator(s)).iterator();
-                var elements = [];
-                for (c in is) {
-                    elements.push({pos: pos, expr: ExprDef.EConst(Constant.CInt("" + c))});
-                }
-                var array = {pos: pos, expr: ExprDef.EArrayDecl(elements)};
-                return macro new rxpattern.CharSet(new rxpattern.IntSet($array));
-            } catch (error: String) {
-                Context.error(error, pos);
-                return null;
-            }
-        default:
-            return macro rxpattern.CharSet.fromStringD($x);
-        }
+    macro public static function fromString(x:ExprOf<String>) {
+        return rxpattern.internal.Macros._fromString(x);
     }
 
     @:extern
@@ -75,7 +57,7 @@ abstract CharSet(IntSet)
         this.remove(singleCodePoint(c));
 
     @:extern
-    public inline function codePointIterator()
+    public inline function codePointIterator():Iterator<Int>
         return this.iterator();
 
     @:extern
@@ -90,9 +72,9 @@ abstract CharSet(IntSet)
     public static inline function difference(a: CharSet, b: CharSet)
         return new CharSet(IntSet.difference(a.getCodePointSet(), b.getCodePointSet()));
 
-    #if !macro
+    #if !(eval || macro)
         private static var rxSingleCodePoint =
-            #if (js || cs)
+            #if (js || cs || hl)
                 ~/^(?:[\u0000-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF])$/;
             #else
                 ~/^.$/us;
@@ -100,19 +82,19 @@ abstract CharSet(IntSet)
     #end
     private static function singleCodePoint(s: String): Int
     {
-        #if macro
+        #if (eval || macro)
             if (s.length == 0) {
-                throw "rxpattern.CharSet: not a single code point";
+                throw CharSet_NotCodePoint;
             }
-            var x = CodePoint.codePointAt(s, 0);
-            if (CodePoint.fromCodePoint(x) != s) {
-                throw "rxpattern.CharSet: not a single code point";
+            var x = InternalEncoding.codePointAt(s, 0);
+            if (CodePoint.fromInt(x) != s) {
+                throw CharSet_NotCodePoint;
             }
         #else
             if (!rxSingleCodePoint.match(s)) {
-                throw "rxpattern.CharSet: not a single code point";
+                throw CharSet_NotCodePoint;
             }
         #end
-        return CodePoint.codePointAt(s, 0);
+        return InternalEncoding.codePointAt(s, 0);
     }
 }

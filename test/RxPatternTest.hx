@@ -1,5 +1,8 @@
+package ;
+
 import rxpattern.CharSet;
 import rxpattern.RxPattern;
+
 class RxPatternTest extends haxe.unit.TestCase
 {
     public function assertPatStrEquals(s: String, p: RxPattern, ?pos: haxe.PosInfos)

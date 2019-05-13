@@ -27,6 +27,7 @@ class Example extends haxe.unit.TestCase
                        >> RxPattern.Char("u").option()
                        >> RxPattern.String("r")
                        >> RxPattern.AtEnd;
+        
         var rx3 = pattern3.build();
         assertTrue(rx3.match("color"));
         assertTrue(rx3.match("colour"));

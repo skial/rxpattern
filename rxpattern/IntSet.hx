@@ -23,7 +23,7 @@ abstract IntSet(Array<Int>)
     public static inline function fromRange(from: Int, to: Int)
         return new IntSet([for (x in from ... to) x]);
 
-    public static inline function fromIterator(it: Iterator<Int>)
+    public static inline function fromCodePointIterator(it: Iterator<unifill.CodePoint>)
     {
         var set = empty();
         for (x in it) {
