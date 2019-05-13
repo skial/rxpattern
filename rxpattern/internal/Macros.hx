@@ -3,6 +3,7 @@ package rxpattern.internal;
 import unifill.*;
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import rxpattern.RxErrors;
 import rxpattern.RxPattern;
 import rxpattern.internal.Target;
 
@@ -34,14 +35,14 @@ class Macros {
         switch x.expr {
             case EConst(CString(v)):
                 if (v.length == 0) {
-                    Context.error("rxpattern.RxPattern.Char: not a single character", pos);
+                    Context.error(Char_NotSingleCharacter, pos);
                     return null;
                 }
 
                 var y = InternalEncoding.codePointAt(v, 0);
                 
                 if (CodePoint.fromInt(y) != v) {
-                    Context.error("rxpattern.RxPattern.Char: not a single character", pos);
+                    Context.error(Char_NotSingleCharacter, pos);
                     return null;
                 }
                 

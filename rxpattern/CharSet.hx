@@ -2,6 +2,7 @@ package rxpattern;
 
 import unifill.*;
 import rxpattern.IntSet;
+import rxpattern.RxErrors;
 
 @:forward(length, iterator)
 abstract CharSet(IntSet) from IntSet
@@ -83,15 +84,15 @@ abstract CharSet(IntSet) from IntSet
     {
         #if (eval || macro)
             if (s.length == 0) {
-                throw "rxpattern.CharSet: not a single code point";
+                throw CharSet_NotCodePoint;
             }
             var x = InternalEncoding.codePointAt(s, 0);
             if (CodePoint.fromInt(x) != s) {
-                throw "rxpattern.CharSet: not a single code point";
+                throw CharSet_NotCodePoint;
             }
         #else
             if (!rxSingleCodePoint.match(s)) {
-                throw "rxpattern.CharSet: not a single code point";
+                throw CharSet_NotCodePoint;
             }
         #end
         return InternalEncoding.codePointAt(s, 0);

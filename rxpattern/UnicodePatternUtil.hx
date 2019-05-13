@@ -1,5 +1,7 @@
 package rxpattern;
 
+import rxpattern.RxErrors;
+
 #if (eval || macro)
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -51,7 +53,7 @@ class UnicodePatternUtil
             if (s.charAt(j + 2) == '{') {
                 var k = s.indexOf('}', j + 3);
                 if (k == -1) {
-                    Context.error("Invalid unicode escape sequence", pos);
+                    Context.error(Unicode_InvalidEscape, pos);
                     return null;
                 }
                 m = s.substring(j + 3, k);
@@ -75,7 +77,7 @@ class UnicodePatternUtil
                         var lo = ((value - 0x10000) & 0x3FF) | 0xDC00;
                         translatedBuf.add(codeprint(hi) + codeprint(lo));
                     } else {
-                        Context.error("This platform does not support Unicode escape beyond BMP.", pos);
+                        Context.error(Unicode_GreaterThanBMP, pos);
                         return null;
                     }
                 } else {
@@ -94,7 +96,7 @@ class UnicodePatternUtil
         {
             var i = "0123456789abcdef".indexOf(c.toLowerCase());
             if (i == -1) {
-                throw "Invalid unicode escape";
+                throw Unicode_InvalidEscape;
             } else {
                 return i;
             }

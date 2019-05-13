@@ -5,6 +5,7 @@ package rxpattern;
 
 import unifill.*;
 import rxpattern.CharSet;
+import rxpattern.RxErrors;
 import rxpattern.UnicodePatternUtil;
 
 #if (eval || macro)
@@ -95,7 +96,7 @@ abstract RxPattern(Pattern)
         #if !(eval || macro)
             #if debug
                 if (!rxSingleCodePoint.match(c)) {
-                    throw "rxpattern.RxPattern.Char: not a single character";
+                    throw Char_NotSingleCharacter;
                 }
             #end
             if (rxSpecialChar.match(c)) {
@@ -105,11 +106,11 @@ abstract RxPattern(Pattern)
             }
         #else
             if (c.length == 0) {
-                throw "rxpattern.RxPattern.Char: not a single character";
+                throw Char_NotSingleCharacter;
             }
             var x = InternalEncoding.codePointAt(c, 0);
             if (CodePoint.fromInt(x) != c) {
-                throw "rxpattern.RxPattern.Char: not a single character";
+                throw Char_NotSingleCharacter;
             }
             if ("^$\\.*+?()[]{}|".indexOf(c) != -1) {
                 return "\\" + c;
@@ -128,7 +129,7 @@ abstract RxPattern(Pattern)
         {
             #if debug
                 if (!rxSingleCodePoint.match(c)) {
-                    throw "rxpattern.RxPattern.Char: not a single character";
+                    throw Char_NotSingleCharacter;
                 }
             #end
             var v = s.charCodeAt(0);
@@ -459,8 +460,6 @@ abstract RxPattern(Pattern)
         return x.get();
     @:extern
     public static inline function buildEReg(x, options = "u") {
-        //trace(getPattern(x) );
-        //trace( options);
         return new EReg(getPattern(x), options);
     }
 
