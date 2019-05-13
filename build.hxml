@@ -30,4 +30,12 @@
 
 --next
 
--php bin/rx
+-php bin/php/rx
+
+--next
+
+-java bin/java/rx
+
+--next
+
+-cs bin/cs/rx

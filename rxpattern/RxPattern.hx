@@ -71,7 +71,7 @@ abstract RxPattern(Pattern)
             return Disjunction("[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]");
         #elseif flash
             return Atom("[\u0000-\u{10FFFF}]");
-        #elseif (eval || hl || neko || php)
+        #elseif (eval || hl || neko || php || java)
             return Atom("(?s:.)");
         #elseif (python)
             return Atom("[\\S\\s]");
@@ -232,7 +232,7 @@ abstract RxPattern(Pattern)
     #end
     private static function SimpleCharSet(set: CharSet, invert: Bool, utf16CodeUnits: Bool): RxPattern
     {
-        var it = set.codePointIterator();
+        var it = set.iterator();
         if (it.hasNext()) {
             var x = it.next();
             if (invert || it.hasNext()) {

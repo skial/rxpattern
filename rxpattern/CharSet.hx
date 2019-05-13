@@ -8,7 +8,7 @@ import haxe.macro.Context;
 import rxpattern.IntSet;
 import rxpattern.unicode.CodePoint;
 
-@:forward(length)
+@:forward(length, iterator)
 abstract CharSet(IntSet) from IntSet
 {
     @:extern
@@ -61,7 +61,7 @@ abstract CharSet(IntSet) from IntSet
         this.remove(singleCodePoint(c));
 
     @:extern
-    public inline function codePointIterator()
+    public inline function codePointIterator():Iterator<Int>
         return this.iterator();
 
     @:extern
