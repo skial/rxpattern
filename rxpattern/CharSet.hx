@@ -1,10 +1,5 @@
 package rxpattern;
 
-#if (eval || macro)
-import haxe.macro.Expr;
-import haxe.macro.Context;
-#end
-
 import rxpattern.IntSet;
 import unifill.CodePoint;
 import unifill.CodePointIter;

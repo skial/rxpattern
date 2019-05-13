@@ -10,7 +10,7 @@ import rxpattern.UnicodePatternUtil;
 
 #if (eval || macro)
 import haxe.macro.Expr;
-import haxe.macro.Context;
+import rxpattern.internal.Target;
 #end
 
 // An enum to describe the context of the expression
@@ -373,7 +373,7 @@ abstract RxPattern(Pattern)
     public static inline function CharSet(set: CharSet)
     {
         #if (eval || macro)
-            if (Context.defined("js") || Context.defined("cs")) {
+            if (JavaScript || CSharp) {
                 return CharSet_surrogate(set);
             } else {
                 return SimpleCharSet(set, false, false);
@@ -387,7 +387,7 @@ abstract RxPattern(Pattern)
     @:extern
     public static inline function NotInSet(set: CharSet) {
         #if (eval || macro)
-            if (Context.defined("js") || Context.defined("cs")) {
+            if (JavaScript || CSharp) {
                 return NotInSet_surrogate(set);
             } else {
                 return SimpleCharSet(set, true, false);

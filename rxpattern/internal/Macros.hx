@@ -1,11 +1,10 @@
 package rxpattern.internal;
 
+import unifill.*;
 import haxe.macro.Expr;
-import unifill.CodePoint;
 import haxe.macro.Context;
 import rxpattern.RxPattern;
-import unifill.CodePointIter;
-import unifill.InternalEncoding;
+import rxpattern.internal.Target;
 
 using tink.MacroApi;
 
@@ -30,7 +29,7 @@ class Macros {
 
     public static function _Char(x:ExprOf<String>):Null<Expr> {
         var pos = x.pos;
-        var useSurrogates = Context.defined('js') || Context.defined('cs');
+        var useSurrogates = JavaScript || CSharp;
         
         switch x.expr {
             case EConst(CString(v)):
@@ -116,7 +115,7 @@ class Macros {
                 try {
                     var escaped = RxPattern.escapeString(v);
                     var expr = {pos: pos, expr: EConst(CString(escaped)) };
-                    var useSurrogates = Context.defined('js') || Context.defined('cs');
+                    var useSurrogates = JavaScript || CSharp;
                     if (v.length == 0) {
                         return macro new rxpattern.RxPattern.Alternative($expr);
                     }
@@ -156,7 +155,6 @@ class Macros {
                         macro $v{c};
                     }];
                     var r = macro new rxpattern.CharSet(new rxpattern.IntSet([$a{elements}]));
-                    //trace( r.toString() );
                     return r;
 
                 } catch (e:Any) {

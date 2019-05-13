@@ -3,6 +3,7 @@ package rxpattern;
 #if (eval || macro)
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import rxpattern.internal.Target;
 #end
 
 /* This class is not used at runtime */
@@ -22,10 +23,10 @@ class UnicodePatternUtil
     macro public static function translateUnicodeEscape(s: String)
     {
         var pos = Context.currentPos();
-        var pythonStyle = Context.defined("python"); // \uHHHH or \UHHHHHHHH
-        var perlStyle = Context.defined("neko") || Context.defined("cpp") || Context.defined("php") || Context.defined("lua") || Context.defined("java"); // \x{HHHH}
-        var jsStyle = Context.defined("js") || Context.defined("cs") || Context.defined("flash") || Context.defined("hl"); // \uHHHH
-        var onlyBMP = Context.defined("js") || Context.defined("cs");
+        var pythonStyle = Python.defined(); // \uHHHH or \UHHHHHHHH
+        var perlStyle = Neko || Cpp || Php || Lua || Java; // \x{HHHH}
+        var jsStyle = JavaScript || CSharp || Flash || HashLink; // \uHHHH
+        var onlyBMP = JavaScript || CSharp;
         function codeprint(v:Int) {
             var hex = StringTools.hex(v, (perlStyle) ? 0 : (pythonStyle && v > 0x10000) ? 8 : 4);
             return if (perlStyle) {
