@@ -13,7 +13,7 @@ class Macros {
     // RxPattern macros
 
     public static function _toStatic(pat: RxPattern, pos: Position):Expr @:privateAccess {
-        var e = {pos: pos, expr: ExprDef.EConst(Constant.CString(pat.get()))};
+        var e = macro @:pos(pos) $v{pat.get()};
 
         return switch pat.getPrec() {
             case Precedence.Disjunction:
@@ -33,7 +33,6 @@ class Macros {
         
         switch x.expr {
             case EConst(CString(v)):
-                
                 if (v.length == 0) {
                     Context.error("rxpattern.RxPattern.Char: not a single character", pos);
                     return null;
@@ -114,7 +113,7 @@ class Macros {
             case EConst(CString(v)):
                 try {
                     var escaped = RxPattern.escapeString(v);
-                    var expr = {pos: pos, expr: EConst(CString(escaped)) };
+                    var expr = macro @:pos(pos) $v{escaped};
                     var useSurrogates = JavaScript || CSharp;
                     if (v.length == 0) {
                         return macro new rxpattern.RxPattern.Alternative($expr);

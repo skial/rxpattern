@@ -86,7 +86,7 @@ class UnicodePatternUtil
         translatedBuf.add(s.substr(i));
         var r = translatedBuf.toString();
         
-        return {pos: pos, expr: ExprDef.EConst(Constant.CString(r))};
+        return macro @:pos(pos) $v{r};
     }
 
     #if (eval || macro)

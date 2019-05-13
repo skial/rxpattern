@@ -1,9 +1,7 @@
 package rxpattern;
 
+import unifill.*;
 import rxpattern.IntSet;
-import unifill.CodePoint;
-import unifill.CodePointIter;
-import unifill.InternalEncoding;
 
 @:forward(length, iterator)
 abstract CharSet(IntSet) from IntSet

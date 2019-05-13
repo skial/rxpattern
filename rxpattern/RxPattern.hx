@@ -3,9 +3,8 @@
  */
 package rxpattern;
 
-import unifill.CodePoint;
+import unifill.*;
 import rxpattern.CharSet;
-import unifill.InternalEncoding;
 import rxpattern.UnicodePatternUtil;
 
 #if (eval || macro)
