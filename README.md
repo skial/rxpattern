@@ -51,7 +51,7 @@ rx4.match("24hours"); // => false
 - Neko VM (UTF-8, PCRE)
 - PHP (UTF-8, PCRE)
 - C++ (UTF-8, PCRE)
-- Lua (UTF-8, PCRE)
+- ~Lua (UTF-8, PCRE)~ Untested
 - JavaScript (UTF-16, native RegExp)
 - C# (UTF-16, [System.Text.RegularExpressions.Regex](https://msdn.microsoft.com/en-us/library/az24scfc%28v=vs.110%29.aspx))
 - Java (UTF-16, [java.util.regex](http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html))
