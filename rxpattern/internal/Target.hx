@@ -13,6 +13,8 @@ enum abstract Target(String) from String to String {
     var Lua = 'lua';
     var Flash = 'flash';
     var HashLink = 'hl';
+    // Should be used over `macro` or `eval`.
+    var Interp = 'interp';
 
     @:to public inline function defined():Bool {
         return Context.defined(this);

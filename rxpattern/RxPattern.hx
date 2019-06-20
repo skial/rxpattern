@@ -151,7 +151,7 @@ abstract RxPattern(Pattern)
 
     public static var AnyExceptNewLine(get, never): #if (js || cs) Disjunction #else Atom #end;
     @:extern static inline function get_AnyExceptNewLine()
-    #if (js)
+    #if js
         return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|(?![\\uD800-\\uDFFF]).");
     #elseif cs
         return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|[^\\r\\n\\u2028\\u2029\\uD800-\\uDFFF]");
@@ -175,7 +175,7 @@ abstract RxPattern(Pattern)
     public static var AtStart(get, never): Term;
     public static var AtEnd(get, never): Term;
     @:extern static inline function get_AtStart()
-    #if (python || neko || cpp || php || lua || java || cs || flash || hl)
+    #if (python || neko || cpp || php || lua || java || cs || flash || hl || eval)
         return Term("\\A");
     #else
         return Term("^");
@@ -183,7 +183,7 @@ abstract RxPattern(Pattern)
     @:extern static inline function get_AtEnd()
     #if python
         return Term("\\Z");
-    #elseif (neko || cpp || php || lua || java || cs || flash || hl)
+    #elseif (neko || cpp || php || lua || java || cs || flash || hl || eval)
         return Term("\\z");
     #else
         return Term("$");
