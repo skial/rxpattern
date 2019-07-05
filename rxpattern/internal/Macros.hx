@@ -14,8 +14,9 @@ class Macros {
     // RxPattern macros
 
     public static function _toStatic(pat: RxPattern, pos: Position):Expr @:privateAccess {
+        trace( pat.get() );
         var e = macro @:pos(pos) $v{pat.get()};
-
+        trace( e.toString() );
         return switch pat.getPrec() {
             case Precedence.Disjunction:
                 macro new rxpattern.RxPattern.Disjunction($e);
@@ -30,7 +31,7 @@ class Macros {
 
     public static function _Char(x:ExprOf<String>):Null<Expr> {
         var pos = x.pos;
-        var useSurrogates = JavaScript || CSharp;
+        var useSurrogates = (!NodeJS && JavaScript) || CSharp;
         
         switch x.expr {
             case EConst(CString(v)):
@@ -68,11 +69,13 @@ class Macros {
 
     public static function _CharSetLit(s:ExprOf<String>):Null<ExprOf<RxPattern>> {
         var pos = s.pos;
+        trace( s.toString() );
         switch s.expr {
             case EConst(CString(v)):
                 try {
-                    var cs = RxPattern.CharSet(CharSet.fromStringD(v));
+                    var cs = RxPattern.CharSet(CharSet2.fromStringD(v));
                     var ex = _toStatic(cs, pos);
+                    trace( ex.toString() );
                     return ex;
 
                 } catch (e:Any) {
@@ -92,7 +95,7 @@ class Macros {
         switch s.expr {
             case EConst(CString(v)):
                 try {
-                    var cs = RxPattern.NotInSet(CharSet.fromStringD(v));
+                    var cs = RxPattern.NotInSet(CharSet2.fromStringD(v));
                     var ex = _toStatic(cs, pos);
                     return ex;
 
@@ -115,7 +118,7 @@ class Macros {
                 try {
                     var escaped = RxPattern.escapeString(v);
                     var expr = macro @:pos(pos) $v{escaped};
-                    var useSurrogates = JavaScript || CSharp;
+                    var useSurrogates = (!NodeJS && JavaScript) || CSharp;
                     if (v.length == 0) {
                         return macro new rxpattern.RxPattern.Alternative($expr);
                     }
@@ -154,7 +157,8 @@ class Macros {
                     var elements = [for (c in set) {
                         macro $v{c};
                     }];
-                    var r = macro new rxpattern.CharSet(new rxpattern.IntSet([$a{elements}]));
+                    //var r = macro new rxpattern.CharSet(new rxpattern.IntSet([$a{elements}]));
+                    var r = macro new rxpattern.CharSet2(new uhx.sys.seri.Ranges([$a{elements}]));
                     return r;
 
                 } catch (e:Any) {
@@ -167,7 +171,7 @@ class Macros {
 
         }
 
-        return macro rxpattern.CharSet.fromStringD($x);
+        return macro rxpattern.CharSet2.fromStringD($x);
     }
 
 }

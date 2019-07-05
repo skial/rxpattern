@@ -4,7 +4,9 @@
 package rxpattern;
 
 import unifill.*;
-import rxpattern.CharSet;
+import uhx.sys.seri.Range;
+import uhx.sys.seri.Ranges;
+import rxpattern.CharSet2 as CharSet;
 import rxpattern.RxErrors;
 import rxpattern.UnicodePatternUtil;
 
@@ -65,16 +67,16 @@ abstract RxPattern(Pattern)
     public static inline function Atom(pattern: String)
         return new Atom(pattern);
 
-    public static var AnyCodePoint(get, never): #if (js || cs) Disjunction #else Atom #end;
+    public static var AnyCodePoint(get, never): #if ((!nodejs  && js) || cs) Disjunction #else Atom #end;
     #if !(eval || macro) inline #end
     static function get_AnyCodePoint()
-        #if (js || cs)
+        #if ((!nodejs && js) || cs)
             return Disjunction("[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]");
         #elseif flash
             return Atom("[\u0000-\u{10FFFF}]");
         #elseif (eval || hl || neko || php || java)
             return Atom("(?s:.)");
-        #elseif (python)
+        #elseif (python || nodejs)
             return Atom("[\\S\\s]");
         #else
             return Atom(UnicodePatternUtil.translateUnicodeEscape("[\\u0000-\\u10FFFF]"));
@@ -85,10 +87,11 @@ abstract RxPattern(Pattern)
     #end
     #if debug
         static var rxSingleCodePoint =
-            #if (js || cs)
+            #if ((!nodejs && js) || cs)
                 ~/^(?:[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF])$/u;
             #else
-                ~/^.$/us;
+                //~/^.$/us;
+                new rxpattern.internal.EReg("^.$", 'us');
             #end
     #end
     public static function escapeChar(c: String)
@@ -124,7 +127,7 @@ abstract RxPattern(Pattern)
         return ~/[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]/g.map(s, e -> "\\" + e.matched(0));
     }
 
-    #if (js || cs)
+    #if ((!nodejs && js) || cs)
         public static function CharS(s: String): RxPattern
         {
             #if debug
@@ -149,9 +152,9 @@ abstract RxPattern(Pattern)
         return rxpattern.internal.Macros._String(x);
     }
 
-    public static var AnyExceptNewLine(get, never): #if (js || cs) Disjunction #else Atom #end;
+    public static var AnyExceptNewLine(get, never): #if ((!nodejs && js) || cs) Disjunction #else Atom #end;
     @:extern static inline function get_AnyExceptNewLine()
-    #if js
+    #if (!nodejs && js)
         return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|(?![\\uD800-\\uDFFF]).");
     #elseif cs
         return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|[^\\r\\n\\u2028\\u2029\\uD800-\\uDFFF]");
@@ -213,11 +216,12 @@ abstract RxPattern(Pattern)
             return c;
         }
     }
-    #if (js || cs || eval || macro || hl)
+    #if ((!nodejs && js) || cs || eval || macro || hl)
         static function escapeChar_surrogate(x)
         {
             if (0xD800 <= x && x <= 0xDFFF) {
                 return "\\u" + StringTools.hex(x, 4);
+                //return rxpattern.internal.Util.printCode(x);
             } else {
                 return escapeChar(CodePoint.fromInt(x));
             }
@@ -226,6 +230,7 @@ abstract RxPattern(Pattern)
         {
             if (0xD800 <= x && x <= 0xDFFF) {
                 return "\\u" + StringTools.hex(x, 4);
+                //return rxpattern.internal.Util.printCode(x);
             } else {
                 return escapeSetChar(CodePoint.fromInt(x));
             }
@@ -233,12 +238,16 @@ abstract RxPattern(Pattern)
     #end
     private static function SimpleCharSet(set: CharSet, invert: Bool, utf16CodeUnits: Bool): RxPattern
     {
+        if (invert) {
+            // NULL characters for Neko crash at runtime.
+            set = Ranges.complement(set #if neko, 1 #end);
+        }
         var it = set.iterator();
         if (it.hasNext()) {
             var x = it.next();
             if (invert || it.hasNext()) {
                 var buf = new StringBuf();
-                buf.add(invert ? "[^" : "[");
+                buf.add(/*invert ? "[^" : */"[");
                 var more = true;
                 while (more) {
                     var start: Int = x;
@@ -253,7 +262,7 @@ abstract RxPattern(Pattern)
                             break;
                         }
                     }
-                    #if (js || cs || hl)
+                    #if ((!nodejs && js) || cs || hl)
                         buf.add(escapeSetChar_surrogate(start));
                     #elseif (eval || macro)
                         if (utf16CodeUnits) {
@@ -268,7 +277,7 @@ abstract RxPattern(Pattern)
                         if (start + 1 != end) {
                             buf.add("-");
                         }
-                        #if (js || cs || hl)
+                        #if ((!nodejs && js) || cs || hl)
                             buf.add(escapeSetChar_surrogate(end));
                         #elseif (eval || macro)
                             if (utf16CodeUnits) {
@@ -282,10 +291,12 @@ abstract RxPattern(Pattern)
                     }
                 }
                 buf.add("]");
-                return Atom(buf.toString());
+                var s = buf.toString();
+                trace( s );
+                return Atom(s);
             } else {
                 /* single code point */
-                #if (js || cs || hl)
+                #if ((!nodejs && js) || cs || hl)
                     var c = escapeChar_surrogate(x);
                     return Atom(c);
                 #elseif (eval || macro)
@@ -307,11 +318,13 @@ abstract RxPattern(Pattern)
             return Never;
         }
     }
-    #if (js || cs || eval || macro || hl)
+    #if ((!nodejs && js) || cs || eval || macro || hl)
         private static function CharSet_surrogate(set: CharSet): RxPattern
         {
-            var bmp = IntSet.empty();
-            var surrogates: Map<Int, IntSet> = new Map();
+            //var bmp = IntSet.empty();
+            var bmp = new Ranges([]);
+            //var surrogates: Map<Int, IntSet> = new Map();
+            var surrogates: Map<Int, Ranges> = new Map();
             for (x in set.codePointIterator()) {
                 if (x < 0x10000) {
                     bmp.add(x);
@@ -320,7 +333,8 @@ abstract RxPattern(Pattern)
                     var lo = ((x - 0x10000) & 0x3FF) | 0xDC00;
                     var t = surrogates.get(hi);
                     if (t == null) {
-                        t = IntSet.singleton(lo);
+                        //t = IntSet.singleton(lo);
+                        t = new Ranges([lo]);
                         surrogates.set(hi, t);
                     } else {
                         t.add(lo);
@@ -339,9 +353,11 @@ abstract RxPattern(Pattern)
         }
         private static function NotInSet_surrogate(set: CharSet): RxPattern
         {
-            var bmp = IntSet.fromRange(0xD800, 0xE000);
-            var surrogates: Map<Int, IntSet> = new Map();
-            var highSurrogates = IntSet.fromRange(0xD800, 0xDC00);
+            //var bmp = IntSet.fromRange(0xD800, 0xE000);
+            var bmp = new Ranges([new Range(0xD800, 0xE000)]);
+            var surrogates: Map<Int, Ranges> = new Map();
+            //var highSurrogates = IntSet.fromRange(0xD800, 0xDC00);
+            var highSurrogates = new Ranges([new Range(0xD800, 0xDC00)]);
             for (x in set.codePointIterator()) {
                 if (x < 0x10000) {
                     bmp.add(x);
@@ -350,7 +366,8 @@ abstract RxPattern(Pattern)
                     var lo = ((x - 0x10000) & 0x3FF) | 0xDC00;
                     var t = surrogates.get(hi);
                     if (t == null) {
-                        t = IntSet.singleton(lo);
+                        //t = IntSet.singleton(lo);
+                        t = new Ranges([lo]);
                         surrogates.set(hi, t);
                         highSurrogates.remove(hi);
                     } else {
@@ -373,12 +390,12 @@ abstract RxPattern(Pattern)
     public static inline function CharSet(set: CharSet)
     {
         #if (eval || macro)
-            if (JavaScript || CSharp) {
+            if ((!NodeJS && JavaScript) || CSharp) {
                 return CharSet_surrogate(set);
             } else {
                 return SimpleCharSet(set, false, false);
             }
-        #elseif (js || cs)
+        #elseif ((!nodejs && js) || cs)
             return CharSet_surrogate(set);
         #else
             return SimpleCharSet(set, false, false);
@@ -387,19 +404,20 @@ abstract RxPattern(Pattern)
     @:extern
     public static inline function NotInSet(set: CharSet) {
         #if (eval || macro)
-            if (JavaScript || CSharp) {
+            if ((!NodeJS && JavaScript) || CSharp) {
                 return NotInSet_surrogate(set);
             } else {
                 return SimpleCharSet(set, true, false);
             }
-        #elseif (js || cs)
+        #elseif ((!nodejs && js) || cs)
             return NotInSet_surrogate(set);
         #else
             return SimpleCharSet(set, true, false);
         #end
     }
     
-    macro public static function CharSetLit(s:ExprOf<String>) {
+    macro public static function CharSetLit(s:ExprOf<String>):ExprOf<RxPattern> {
+        trace( new haxe.macro.Printer().printExpr(s) );
         return rxpattern.internal.Macros._CharSetLit(s);
     }
     
@@ -454,13 +472,13 @@ abstract RxPattern(Pattern)
         return this.prec;
     @:extern
     public inline function build(options = "u")
-        return new EReg(this.pattern, options);
+        return new rxpattern.internal.EReg(this.pattern, options);
     @:extern
     public static inline function getPattern(x: Disjunction)
         return x.get();
     @:extern
     public static inline function buildEReg(x, options = "u") {
-        return new EReg(getPattern(x), options);
+        return new rxpattern.internal.EReg(getPattern(x), options);
     }
 
     @:extern
@@ -508,7 +526,8 @@ abstract Disjunction(String)
     @:extern
     public inline function get() return this;
     @:extern
-    public inline function build(options = "u") return new EReg(this, options);
+    public inline function build(options = "u") 
+        return new rxpattern.internal.EReg(this, options);
     @:extern
     public inline function toDisjunction() return this;
     @:extern
