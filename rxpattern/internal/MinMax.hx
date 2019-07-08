@@ -8,15 +8,15 @@ class MinMax {
 
     public static var MIN:Int = 
     #if (eval || macro) 
-        if (Target.Neko) {
+        if (Neko || HashLink) {
             1;
         } else {
             unifill.Unicode.minCodePoint;
         }
-    #elseif neko
+    #elseif (neko || hl)
         1
     #else
-        unifill.Unicode.minCodePoint;
+        unifill.Unicode.minCodePoint
     #end
     ;
 

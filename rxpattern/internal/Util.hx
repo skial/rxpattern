@@ -14,14 +14,14 @@ class Util {
     private static var onlyBMP:Bool = JavaScript || CSharp;
 
     public static function printCode(v:Int):String {
-        if (v >= 'A'.code && v <= 'Z'.code || v >= 'a'.code && v <= 'z'.code) {
+        if (v >= '0'.code && v <= '9'.code || v >= 'A'.code && v <= 'Z'.code || v >= 'a'.code && v <= 'z'.code) {
             return String.fromCharCode(v);
         }
-        var hex = StringTools.hex(v, (perlStyle) ? 0 : (pythonStyle && v > 0x10000) ? 8 : 4);
+        var hex = StringTools.hex(v, (perlStyle) ? 0 : (pythonStyle && v >= 0x10000) ? 8 : 4);
         return if (perlStyle) {
             '\\x{' + hex + '}';
 
-        } else if (pythonStyle && v > 0x10000) {
+        } else if (pythonStyle && v >= 0x10000) {
             '\\U' + hex;
 
         } else if (
@@ -40,18 +40,18 @@ class Util {
     }
     #elseif (neko || cpp || php || lua || java)
     public static inline function printCode(v:Int):String {
-        if (v >= 'A'.code && v <= 'Z'.code || v >= 'a'.code && v <= 'z'.code) {
+        if (v >= '0'.code && v <= '9'.code || v >= 'A'.code && v <= 'Z'.code || v >= 'a'.code && v <= 'z'.code) {
             return String.fromCharCode(v);
         }
         return '\\x{' + StringTools.hex(v, 0) + '}';
     }
-    #elseif (python)
+    #elseif python
     public static function printCode(v:Int):String {
-        if (v >= 'A'.code && v <= 'Z'.code || v >= 'a'.code && v <= 'z'.code) {
+        if (v >= '0'.code && v <= '9'.code || v >= 'A'.code && v <= 'Z'.code || v >= 'a'.code && v <= 'z'.code) {
             return String.fromCharCode(v);
         }
-        var hex = StringTools.hex(v, (v > 0x10000) ? 8 : 4);
-        return if (v > 0x10000) {
+        var hex = StringTools.hex(v, (v >= 0x10000) ? 8 : 4);
+        return if (v >= 0x10000) {
             '\\U' + hex;
 
         } else {
@@ -61,7 +61,7 @@ class Util {
     }
     #elseif (js || cs || hl || flash)
     public static inline function printCode(v:Int):String {
-        if (v >= 'A'.code && v <= 'Z'.code || v >= 'a'.code && v <= 'z'.code) {
+        if (v >= '0'.code && v <= '9'.code || v >= 'A'.code && v <= 'Z'.code || v >= 'a'.code && v <= 'z'.code) {
             return String.fromCharCode(v);
         }
         return 

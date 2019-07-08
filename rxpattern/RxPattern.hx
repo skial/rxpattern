@@ -8,6 +8,7 @@ import uhx.sys.seri.Range;
 import uhx.sys.seri.Ranges;
 import rxpattern.CharSet2 as CharSet;
 import rxpattern.RxErrors;
+import rxpattern.internal.MinMax.*;
 import rxpattern.UnicodePatternUtil;
 
 #if (eval || macro)
@@ -83,14 +84,11 @@ abstract RxPattern(Pattern)
         #end
 
     #if !(eval || macro)
-        static var rxSpecialChar = ~/^[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]$/;
-    #end
-    #if debug
-        static var rxSingleCodePoint =
+        private static var rxSpecialChar = ~/^[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]$/;
+        private static var rxSingleCodePoint =
             #if ((!nodejs && js) || cs)
                 ~/^(?:[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF])$/u;
             #else
-                //~/^.$/us;
                 new rxpattern.internal.EReg("^.$", 'us');
             #end
     #end
@@ -216,12 +214,12 @@ abstract RxPattern(Pattern)
             return c;
         }
     }
-    #if ((!nodejs && js) || cs || eval || macro || hl)
+    #if ((!nodejs && js) || cs || eval || macro)
         static function escapeChar_surrogate(x)
         {
             if (0xD800 <= x && x <= 0xDFFF) {
-                return "\\u" + StringTools.hex(x, 4);
-                //return rxpattern.internal.Util.printCode(x);
+                //return "\\u" + StringTools.hex(x, 4);
+                return rxpattern.internal.Util.printCode(x);
             } else {
                 return escapeChar(CodePoint.fromInt(x));
             }
@@ -229,8 +227,8 @@ abstract RxPattern(Pattern)
         static function escapeSetChar_surrogate(x)
         {
             if (0xD800 <= x && x <= 0xDFFF) {
-                return "\\u" + StringTools.hex(x, 4);
-                //return rxpattern.internal.Util.printCode(x);
+                //return "\\u" + StringTools.hex(x, 4);
+                return rxpattern.internal.Util.printCode(x);
             } else {
                 return escapeSetChar(CodePoint.fromInt(x));
             }
@@ -240,7 +238,7 @@ abstract RxPattern(Pattern)
     {
         if (invert) {
             // NULL characters for Neko crash at runtime.
-            set = Ranges.complement(set #if neko, 1 #end);
+            set = Ranges.complement(set #if (neko || hl) , MIN #end);
         }
         var it = set.iterator();
         if (it.hasNext()) {
@@ -262,7 +260,7 @@ abstract RxPattern(Pattern)
                             break;
                         }
                     }
-                    #if ((!nodejs && js) || cs || hl)
+                    #if ((!nodejs && js) || cs)
                         buf.add(escapeSetChar_surrogate(start));
                     #elseif (eval || macro)
                         if (utf16CodeUnits) {
@@ -277,7 +275,7 @@ abstract RxPattern(Pattern)
                         if (start + 1 != end) {
                             buf.add("-");
                         }
-                        #if ((!nodejs && js) || cs || hl)
+                        #if ((!nodejs && js) || cs)
                             buf.add(escapeSetChar_surrogate(end));
                         #elseif (eval || macro)
                             if (utf16CodeUnits) {
@@ -292,11 +290,10 @@ abstract RxPattern(Pattern)
                 }
                 buf.add("]");
                 var s = buf.toString();
-                trace( s );
                 return Atom(s);
             } else {
                 /* single code point */
-                #if ((!nodejs && js) || cs || hl)
+                #if ((!nodejs && js) || cs)
                     var c = escapeChar_surrogate(x);
                     return Atom(c);
                 #elseif (eval || macro)
@@ -318,7 +315,7 @@ abstract RxPattern(Pattern)
             return Never;
         }
     }
-    #if ((!nodejs && js) || cs || eval || macro || hl)
+    #if ((!nodejs && js) || cs || eval || macro)
         private static function CharSet_surrogate(set: CharSet): RxPattern
         {
             //var bmp = IntSet.empty();
@@ -417,7 +414,6 @@ abstract RxPattern(Pattern)
     }
     
     macro public static function CharSetLit(s:ExprOf<String>):ExprOf<RxPattern> {
-        trace( new haxe.macro.Printer().printExpr(s) );
         return rxpattern.internal.Macros._CharSetLit(s);
     }
     

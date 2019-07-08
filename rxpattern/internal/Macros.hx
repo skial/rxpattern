@@ -15,19 +15,18 @@ class Macros {
 
     // RxPattern macros
 
-    public static function _toStatic(pat: RxPattern, pos: Position):Expr @:privateAccess {
-        trace( pat.get() );
+    public static function _toStatic(pat:RxPattern, pos:Position):Expr @:privateAccess {
         var e = macro @:pos(pos) $v{pat.get()};
-        trace( e.toString() );
+
         return switch pat.getPrec() {
             case Precedence.Disjunction:
-                macro new rxpattern.RxPattern.Disjunction($e);
+                macro @:pos(pos) new rxpattern.RxPattern.Disjunction($e);
             case Precedence.Alternative:
-                macro new rxpattern.RxPattern.Alternative($e);
+                macro @:pos(pos) new rxpattern.RxPattern.Alternative($e);
             case Precedence.Term:
-                macro new rxpattern.RxPattern.Term($e);
+                macro @:pos(pos) new rxpattern.RxPattern.Term($e);
             case Precedence.Atom:
-                macro new rxpattern.RxPattern.Atom($e);
+                macro @:pos(pos) new rxpattern.RxPattern.Atom($e);
         }
     }
 
@@ -71,13 +70,12 @@ class Macros {
 
     public static function _CharSetLit(s:ExprOf<String>):Null<ExprOf<RxPattern>> {
         var pos = s.pos;
-        trace( s.toString() );
         switch s.expr {
             case EConst(CString(v)):
                 try {
-                    var cs = RxPattern.CharSet(CharSet2.fromStringD(v));
+                    var charset = CharSet2.fromStringD(v);
+                    var cs = RxPattern.CharSet(charset.clamp(MIN, MAX));
                     var ex = _toStatic(cs, pos);
-                    trace( ex.toString() );
                     return ex;
 
                 } catch (e:Any) {
@@ -99,7 +97,6 @@ class Macros {
                 try {
                     var charset = CharSet2.fromStringD(v);
                     var invert = Ranges.complement(charset);
-                    //var cs = RxPattern.NotInSet(charset);
                     var cs = RxPattern.CharSet(invert.clamp(MIN, MAX));
                     var ex = _toStatic(cs, pos);
                     return ex;

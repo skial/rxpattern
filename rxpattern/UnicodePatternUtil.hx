@@ -57,10 +57,8 @@ class UnicodePatternUtil
                 translatedBuf.add(printCode(value));
 
             } else {
-                if (value > 0x10000) {
-                    /*if (pythonStyle) {
-                        translatedBuf.add(printCode(value));
-                    } else */if (jsStyle || !onlyBMP) {
+                if (value >= 0x10000) {
+                    if (jsStyle || !onlyBMP) {
                         var hi = ((value - 0x10000) >> 10) | 0xD800;
                         var lo = ((value - 0x10000) & 0x3FF) | 0xDC00;
                         translatedBuf.add(printCode(hi) + printCode(lo));
@@ -81,7 +79,7 @@ class UnicodePatternUtil
     }
 
     public macro static function printCategory(category:String):ExprOf<RxPattern> {
-        var range:Ranges = (cast category:Category).asRange();
+        var range:Ranges = (cast category:uhx.sys.seri.v800.Category).asRange();
         if (range.min == 0 && range.max == 0) {
             // Incorrect Category.
             Context.error('$category is not a valid value of uhx.sys.seri.Category.', Context.currentPos());
@@ -107,70 +105,20 @@ class UnicodePatternUtil
     #if (eval || macro)
     private static var pythonStyle:Bool = Python; // \uHHHH or \UHHHHHHHH
     private static var perlStyle:Bool = Neko || Cpp || Php || Lua || Java; // \x{HHHH}
-    private static var jsStyle:Bool = JavaScript || CSharp || Flash || HashLink; // \uHHHH
+    private static var jsStyle:Bool = JavaScript || CSharp || Flash; // \uHHHH
     private static var onlyBMP:Bool = JavaScript || CSharp;
 
     private static function printRanges(ranges:Ranges):String {
         var buf = new StringBuf();
         var open:Null<Bool> = true;
-
-        /*function handle(min:Int, max:Int) {
-            if (min >= 0x10000) {
-                var minhi = ((min - 0x10000) >> 10) | 0xD800;
-                var minlo = ((min - 0x10000) & 0x3FF) | 0xDC00;
-                var maxhi = ((max - 0x10000) >> 10) | 0xD800;
-                var maxlo = ((max - 0x10000) & 0x3FF) | 0xDC00;
-                
-                if (open != null && !open) {
-                    buf.add(']');
-                    open = null;
-                }
-                buf.add( '|' + printCode(minhi) );
-                buf.add( '[' + printCode(minlo) + '-' + printCode(maxlo) + ']');
-
-            } else {
-                buf.add( printCode(min) + '-' + printCode(max) );
-
-            }
-        }*/
-
         var label = '';
         for (range in ranges.values) {
             if (open != null && open) {
                 buf.add('[');
                 open = false;
             }
-            /*switch range.length {
-                case 0:
-                    buf.add( printCode(range.min) );
 
-                case 1:
-                    //trace( range.min, range.max );
-                    buf.add( printCode(range.min) );
-                    buf.add( printCode(range.max) );
-
-                case _:
-                    /*if (range.min >= 0x10000) {
-                        var minhi = ((range.min - 0x10000) >> 10) | 0xD800;
-                        var minlo = ((range.min - 0x10000) & 0x3FF) | 0xDC00;
-                        var maxhi = ((range.max - 0x10000) >> 10) | 0xD800;
-                        var maxlo = ((range.max - 0x10000) & 0x3FF) | 0xDC00;
-                        
-                        if (open != null && !open) {
-                            buf.add(']');
-                            open = null;
-                        }
-                        buf.add( '|' + printCode(minhi) );
-                        buf.add( '[' + printCode(minlo) + '-' + printCode(maxlo) + ']');
-
-                    } else {
-                        buf.add( printCode(range.min) + '-' + printCode(range.max) );
-
-                    }*/
-                    /*handle(range.min, range.max);
-
-            }*/
-            if (!NodeJS && range.min >= 0x10000) {
+            if (!NodeJS && !Python && range.min >= 0x10000) {
                 var minhi = ((range.min - 0x10000) >> 10) | 0xD800;
                 var minlo = ((range.min - 0x10000) & 0x3FF) | 0xDC00;
                 var maxhi = ((range.max - 0x10000) >> 10) | 0xD800;
@@ -186,27 +134,17 @@ class UnicodePatternUtil
                     buf.add( high );
                     
                 }
-                //buf.add( '[' + printCode(minlo) + '-' + printCode(maxlo) + ']');
 
                 switch range.length {
                     case 0: 
-                        //buf.add( high );
                         buf.add( printCode(minlo) );
 
                     case 1:
-                        //buf.add( high );
                         buf.add( printCode(minlo) );
                         buf.add( printCode(maxlo) );
 
                     case _:
-                        //buf.add( high );
                         if (label != high) buf.add('[');
-                        /*if (minlo == 57152) {
-                            trace(printCode(range.min), printCode(range.max));
-                            trace(range.min, range.max, range.length, high );
-                            trace( minlo, minhi, maxlo, maxhi );
-                            trace( printCode(minlo), printCode(minhi), printCode(maxlo), printCode(maxhi));
-                        }*/
                         buf.add( printCode(minlo) + '-' + printCode(maxlo) );
                         open = false;
                     
