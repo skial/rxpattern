@@ -5,7 +5,9 @@ import haxe.macro.Expr;
 import haxe.macro.Context;
 import rxpattern.RxErrors;
 import rxpattern.RxPattern;
+import uhx.sys.seri.Ranges;
 import rxpattern.internal.Target;
+import rxpattern.internal.MinMax.*;
 
 using tink.MacroApi;
 
@@ -95,7 +97,10 @@ class Macros {
         switch s.expr {
             case EConst(CString(v)):
                 try {
-                    var cs = RxPattern.NotInSet(CharSet2.fromStringD(v));
+                    var charset = CharSet2.fromStringD(v);
+                    var invert = Ranges.complement(charset);
+                    //var cs = RxPattern.NotInSet(charset);
+                    var cs = RxPattern.CharSet(invert.clamp(MIN, MAX));
                     var ex = _toStatic(cs, pos);
                     return ex;
 
