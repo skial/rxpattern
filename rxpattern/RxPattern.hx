@@ -238,7 +238,7 @@ abstract RxPattern(Pattern)
     {
         if (invert) {
             // NULL characters for Neko crash at runtime.
-            set = Ranges.complement(set #if (neko || hl) , MIN #end);
+            set = Ranges.complement(set #if (neko || hl || php) , MIN #end);
         }
         var it = set.iterator();
         if (it.hasNext()) {
