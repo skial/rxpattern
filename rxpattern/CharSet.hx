@@ -1,30 +1,28 @@
 package rxpattern;
 
 import unifill.*;
-import rxpattern.IntSet;
 import rxpattern.RxErrors;
+import uhx.sys.seri.Ranges;
 
-@:forward(length, iterator)
-abstract CharSet(IntSet) from IntSet
-{
-    @:extern
-    public inline function new(s : IntSet)
-        this = s;
+@:forward
+abstract CharSet(Ranges) from Ranges to Ranges {
+    
+    public inline function new(s:Ranges) this = s;
+    
+    public static inline function empty():CharSet {
+        return new CharSet( new Ranges([]) );
+    }
 
-    @:extern
-    public static inline function empty()
-        return new CharSet(IntSet.empty());
+    public static inline function singleton(c:String) {
+        return new CharSet( new Ranges( [singleCodePoint(c)] ) );
+    }
 
-    @:extern
-    public static inline function singleton(c: String)
-        return new CharSet(IntSet.singleton(singleCodePoint(c)));
-
-    @:from
-    @:extern
-    public static inline function fromStringD(s: String) {
-        trace(s);
-        var i = IntSet.fromCodePointIterator(new CodePointIter(s));
-        var c = new CharSet(i);
+    @:from public static inline function fromStringD(s:String) {
+        var rs = new Ranges([]);
+        for (i in new CodePointIter(s)) 
+            if (!rs.has(i.toInt())) rs.add(i.toInt());
+        
+        var c = new CharSet(rs);
         return c;
     }
 
@@ -32,58 +30,27 @@ abstract CharSet(IntSet) from IntSet
         return rxpattern.internal.Macros._fromString(x);
     }
 
-    @:extern
     public inline function getCodePointSet()
         return this;
 
-    @:extern
-    public inline function hasCodePoint(x: Int)
+    public inline function hasCodePoint(x:Int)
         return this.has(x);
 
-    @:extern
-    public inline function has(c: String)
+    public inline function has(c:String)
         return this.has(singleCodePoint(c));
 
-    @:extern
-    public inline function addCodePoint(x: Int)
-        this.add(x);
-
-    @:extern
-    public inline function add(c: String)
+    public inline function add(c:String)
         this.add(singleCodePoint(c));
 
-    @:extern
-    public inline function removeCodePoint(x: Int)
+    public inline function removeCodePoint(x:Int)
         this.remove(x);
 
-    @:extern
-    public inline function remove(c: String)
+    public inline function remove(c:String)
         this.remove(singleCodePoint(c));
 
-    @:extern
     public inline function codePointIterator():Iterator<Int>
         return this.iterator();
 
-    @:extern
-    public static inline function intersection(a: CharSet, b: CharSet)
-        return new CharSet(IntSet.intersection(a.getCodePointSet(), b.getCodePointSet()));
-
-    @:extern
-    public static inline function union(a: CharSet, b: CharSet)
-        return new CharSet(IntSet.union(a.getCodePointSet(), b.getCodePointSet()));
-
-    @:extern
-    public static inline function difference(a: CharSet, b: CharSet)
-        return new CharSet(IntSet.difference(a.getCodePointSet(), b.getCodePointSet()));
-
-    #if !(eval || macro)
-        private static var rxSingleCodePoint =
-            #if ((!nodejs && js) || cs || hl)
-                ~/^(?:[\u0000-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF])$/;
-            #else
-                ~/^.$/us;
-            #end
-    #end
     private static function singleCodePoint(s: String): Int
     {
         #if (eval || macro)
@@ -95,7 +62,7 @@ abstract CharSet(IntSet) from IntSet
                 throw CharSet_NotCodePoint;
             }
         #else
-            if (!rxSingleCodePoint.match(s)) {
+            if (!@:privateAccess RxPattern.rxSingleCodePoint.match(s)) {
                 throw CharSet_NotCodePoint;
             }
         #end
