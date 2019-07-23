@@ -73,7 +73,7 @@ class Macros {
         switch s.expr {
             case EConst(CString(v)):
                 try {
-                    var charset = CharSet2.fromStringD(v);
+                    var charset = CharSet.fromStringD(v);
                     var cs = RxPattern.CharSet(charset.clamp(MIN, MAX));
                     var ex = _toStatic(cs, pos);
                     return ex;
@@ -95,7 +95,7 @@ class Macros {
         switch s.expr {
             case EConst(CString(v)):
                 try {
-                    var charset = CharSet2.fromStringD(v);
+                    var charset = CharSet.fromStringD(v);
                     var invert = Ranges.complement(charset);
                     var cs = RxPattern.CharSet(invert.clamp(MIN, MAX));
                     var ex = _toStatic(cs, pos);
@@ -114,7 +114,6 @@ class Macros {
 
     public static function _String(x:ExprOf<String>):Null<ExprOf<RxPattern>> {
         var pos = x.pos;
-
         switch x.expr {
             case EConst(CString(v)):
                 try {
@@ -155,12 +154,13 @@ class Macros {
         switch x.expr {
             case EConst(CString(s)):
                 try {
+                    trace( s );
                     var set = IntSet.fromCodePointIterator(new CodePointIter(s)).iterator();
                     var elements = [for (c in set) {
                         macro $v{c};
                     }];
                     //var r = macro new rxpattern.CharSet(new rxpattern.IntSet([$a{elements}]));
-                    var r = macro new rxpattern.CharSet2(new uhx.sys.seri.Ranges([$a{elements}]));
+                    var r = macro new rxpattern.CharSet(new uhx.sys.seri.Ranges([$a{elements}]));
                     return r;
 
                 } catch (e:Any) {
@@ -173,7 +173,7 @@ class Macros {
 
         }
 
-        return macro rxpattern.CharSet2.fromStringD($x);
+        return macro rxpattern.CharSet.fromStringD($x);
     }
 
 }
