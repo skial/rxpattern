@@ -1,6 +1,7 @@
 package rxpattern;
 
 import unifill.Unifill;
+import rxpattern.CharSet;
 import tink.unit.AssertionBuffer;
 import rxpattern.RxPattern.Disjunction;
 
@@ -15,11 +16,11 @@ using rxpattern.RxPatternSpec;
     }
 
     public static inline function matches(a:AssertionBuffer, s:String, p:Disjunction, ?pos:haxe.PosInfos):Void {
-        a.assert( RxPattern.buildEReg(p).match(s), '`RxPattern.buildEReg(p)` == ${RxPattern.buildEReg(p)} `.match(s)` == ${unifill.Unifill.uCharCodeAt(s, 0)}', pos );
+        a.assert( RxPattern.buildEReg(p).match(s), '`RxPattern.buildEReg(p)` == ${RxPattern.buildEReg(p)} `.match(s)` == $s', pos );
     }
 
     public static inline function notMatches(a:AssertionBuffer, s:String, p:Disjunction, ?pos:haxe.PosInfos):Void {
-        a.assert( !RxPattern.buildEReg(p).match(s), '`!RxPattern.buildEReg(p)` == ${RxPattern.buildEReg(p)} `.match(s)` == ${unifill.Unifill.uCharCodeAt(s, 0)}', pos );
+        a.assert( !RxPattern.buildEReg(p).match(s), '`!RxPattern.buildEReg(p)` == ${RxPattern.buildEReg(p)} `.match(s)` == $s', pos );
     }
 
     public function testBasic() {
@@ -97,10 +98,12 @@ using rxpattern.RxPatternSpec;
         asserts.pattern("[ehlo]", RxPattern.CharSet(CharSet.fromString("hello")));
 
         var p = RxPattern.NotInSet(CharSet.fromString("hello"));
+        
         asserts.notMatches("h", p);
         asserts.notMatches("e", p);
         asserts.notMatches("l", p);
         asserts.notMatches("o", p);
+        asserts.matches("\u{10000}", p);
         asserts.matches("AaZ", RxPattern.Char("A") >> p >> RxPattern.Char("Z"));
         asserts.notMatches("AoZ", RxPattern.Char("A") >> p >> RxPattern.Char("Z"));
         asserts.matches("A\u{10000}Z", RxPattern.Char("A") >> p >> RxPattern.Char("Z"));
@@ -171,6 +174,7 @@ using rxpattern.RxPatternSpec;
         asserts.matches("\u{10001}", r);
         asserts.notMatches("\u{10002}", r);
         asserts.matches("\u{3042}", r);
+
         return asserts.done();
     }
 

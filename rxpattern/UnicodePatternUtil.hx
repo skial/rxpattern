@@ -3,6 +3,7 @@ package rxpattern;
 import rxpattern.RxErrors;
 import uhx.sys.seri.Category;
 import rxpattern.internal.Util.printCode;
+import rxpattern.internal.Util.printRanges;
 
 #if (eval || macro)
 import haxe.macro.Expr;
@@ -107,77 +108,6 @@ class UnicodePatternUtil
     private static var perlStyle:Bool = Neko || Cpp || Php || Lua || Java; // \x{HHHH}
     private static var jsStyle:Bool = JavaScript || CSharp || Flash; // \uHHHH
     private static var onlyBMP:Bool = JavaScript || CSharp;
-
-    private static function printRanges(ranges:Ranges):String {
-        var buf = new StringBuf();
-        var open:Null<Bool> = true;
-        var label = '';
-        for (range in ranges.values) {
-            if (open != null && open) {
-                buf.add('[');
-                open = false;
-            }
-
-            if (!NodeJS && !Python && range.min >= 0x10000) {
-                var minhi = ((range.min - 0x10000) >> 10) | 0xD800;
-                var minlo = ((range.min - 0x10000) & 0x3FF) | 0xDC00;
-                var maxhi = ((range.max - 0x10000) >> 10) | 0xD800;
-                var maxlo = ((range.max - 0x10000) & 0x3FF) | 0xDC00;
-
-                var high = printCode(minhi);
-                if (high != label) {
-                    if (open != null && !open) {
-                        buf.add(']');
-                        open = null;
-                    }
-                    buf.add( '|'/* + printCode(minhi)*/ );
-                    buf.add( high );
-                    
-                }
-
-                switch range.length {
-                    case 0: 
-                        buf.add( printCode(minlo) );
-
-                    case 1:
-                        buf.add( printCode(minlo) );
-                        buf.add( printCode(maxlo) );
-
-                    case _:
-                        if (label != high) buf.add('[');
-                        buf.add( printCode(minlo) + '-' + printCode(maxlo) );
-                        open = false;
-                    
-                }
-
-                if (label != high) {
-                    label = high;
-                }
-
-            } else {
-                switch range.length {
-                    case 0: 
-                        buf.add( printCode(range.min) );
-
-                    case 1:
-                        buf.add( printCode(range.min) );
-                        buf.add( printCode(range.max) );
-
-                    case _:
-                        buf.add( printCode(range.min) + '-' + printCode(range.max) );
-                    
-                }
-
-            }
-        }
-
-        if (open != null && !open) {
-            buf.add(']');
-            open = null;
-        }
-
-        return buf.toString();
-    }
 
     private static function hexToInt(c:String):Int {
         var i = "0123456789abcdef".indexOf(c.toLowerCase());

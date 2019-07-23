@@ -6,7 +6,7 @@ package rxpattern;
 import unifill.*;
 import uhx.sys.seri.Range;
 import uhx.sys.seri.Ranges;
-import rxpattern.CharSet2 as CharSet;
+import rxpattern.CharSet;
 import rxpattern.RxErrors;
 import rxpattern.internal.MinMax.*;
 import rxpattern.UnicodePatternUtil;
@@ -85,9 +85,14 @@ abstract RxPattern(Pattern)
 
     #if !(eval || macro)
         private static var rxSpecialChar = ~/^[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]$/;
-        private static var rxSingleCodePoint =
+        private static var rxSingleCodePoint =/*
             #if ((!nodejs && js) || cs)
                 ~/^(?:[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF])$/u;
+            #else
+                new rxpattern.internal.EReg("^.$", 'us');
+            #end*/
+            #if ((!nodejs && js) || cs)
+                (AtStart >> AnyCodePoint >> AtEnd).build();
             #else
                 new rxpattern.internal.EReg("^.$", 'us');
             #end
@@ -129,7 +134,8 @@ abstract RxPattern(Pattern)
         public static function CharS(s: String): RxPattern
         {
             #if debug
-                if (!rxSingleCodePoint.match(c)) {
+            trace(s);
+                if (!rxSingleCodePoint.match(s)) {
                     throw Char_NotSingleCharacter;
                 }
             #end
@@ -238,7 +244,7 @@ abstract RxPattern(Pattern)
     {
         if (invert) {
             // NULL characters for Neko crash at runtime.
-            set = Ranges.complement(set #if (neko || hl || php) , MIN #end);
+            set = Ranges.complement(set, MIN, MAX);
         }
         var it = set.iterator();
         if (it.hasNext()) {
@@ -318,6 +324,9 @@ abstract RxPattern(Pattern)
     #if ((!nodejs && js) || cs || eval || macro)
         private static function CharSet_surrogate(set: CharSet): RxPattern
         {
+            var rs = rxpattern.internal.Util.printRanges(set);
+            //trace( rs.get() );
+            return rs;
             //var bmp = IntSet.empty();
             var bmp = new Ranges([]);
             //var surrogates: Map<Int, IntSet> = new Map();
@@ -350,8 +359,10 @@ abstract RxPattern(Pattern)
         }
         private static function NotInSet_surrogate(set: CharSet): RxPattern
         {
+            var c = Ranges.complement(set, MIN, MAX);
+            return rxpattern.internal.Util.printRanges(c);
             //var bmp = IntSet.fromRange(0xD800, 0xE000);
-            var bmp = new Ranges([new Range(0xD800, 0xE000)]);
+            /*var bmp = new Ranges([new Range(0xD800, 0xE000)]);
             var surrogates: Map<Int, Ranges> = new Map();
             //var highSurrogates = IntSet.fromRange(0xD800, 0xDC00);
             var highSurrogates = new Ranges([new Range(0xD800, 0xDC00)]);
@@ -380,7 +391,7 @@ abstract RxPattern(Pattern)
             if (highSurrogates.length > 0) {
                 p = p | (SimpleCharSet(new CharSet(highSurrogates), false, true) >> Atom("[\\uDC00-\\uDFFF]"));
             }
-            return p;
+            return p;*/
         }
     #end
     @:extern
@@ -473,7 +484,7 @@ abstract RxPattern(Pattern)
     public static inline function getPattern(x: Disjunction)
         return x.get();
     @:extern
-    public static inline function buildEReg(x, options = "u") {
+    public static inline function buildEReg(x, options = #if (js && !nodejs) '' #else "u" #end) {
         return new rxpattern.internal.EReg(getPattern(x), options);
     }
 
