@@ -25,26 +25,26 @@
 --macro includeFile("regenerate.js")
 -js bin/rx.js
 
-#--next
-#
-#-neko bin/rx.n
-#
-#--next
-#
-#-hl bin/rx.hl
-#
-#--next
-#
-#-python bin/rx.py
-#
-#--next
-#
-#-php bin/php
-#
-#--next
-#
-#-java bin/java
-#
+--next
+
+-neko bin/rx.n
+
+--next
+
+-hl bin/rx.hl
+
+--next
+
+-python bin/rx.py
+
+--next
+
+-php bin/php
+
+--next
+
+-java bin/java
+
 --next
 
 -cs bin/cs
