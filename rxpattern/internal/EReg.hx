@@ -14,9 +14,9 @@ import js.lib.RegExp;
     }
 }
 
-typedef ERegImpl = #if !nodejs
+typedef ERegImpl = #if !(nodejs)
     std.EReg
-#else
+#elseif (nodejs && js)
     _JsEReg
 #end
 ;
