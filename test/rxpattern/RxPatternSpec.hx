@@ -20,6 +20,7 @@ using rxpattern.RxPatternSpec;
     }
 
     public static inline function notMatches(a:AssertionBuffer, s:String, p:Disjunction, ?pos:haxe.PosInfos):Void {
+        trace( p.get() );
         a.assert( !RxPattern.buildEReg(p).match(s), '`!RxPattern.buildEReg(p)` == ${RxPattern.buildEReg(p)} `.match(s)` == $s', pos );
     }
 

@@ -48,7 +48,7 @@
 --next
 
 -cs bin/cs
-#
-#--next
-#
-#--interp
+
+--next
+
+--interp

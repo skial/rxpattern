@@ -8,7 +8,7 @@ class MinMax {
 
     public static var MIN:Int = 
     #if (eval || macro) 
-        if (Neko || HashLink || Php) {
+        if (Interp || Neko || HashLink || Php) {
             1;
         } else {
             unifill.Unicode.minCodePoint;

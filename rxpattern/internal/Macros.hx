@@ -154,12 +154,10 @@ class Macros {
         switch x.expr {
             case EConst(CString(s)):
                 try {
-                    trace( s );
                     var set = IntSet.fromCodePointIterator(new CodePointIter(s)).iterator();
                     var elements = [for (c in set) {
                         macro $v{c};
                     }];
-                    //var r = macro new rxpattern.CharSet(new rxpattern.IntSet([$a{elements}]));
                     var r = macro new rxpattern.CharSet(new uhx.sys.seri.Ranges([$a{elements}]));
                     return r;
 
