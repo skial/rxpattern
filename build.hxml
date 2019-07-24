@@ -18,8 +18,13 @@
 --each
 
 -lib hxnodejs
+-js bin/rxn.js
+
+--next
+
+--macro includeFile("regenerate.js")
 -js bin/rx.js
-#
+
 #--next
 #
 #-neko bin/rx.n
@@ -34,15 +39,15 @@
 #
 #--next
 #
-#-php bin/php/rx
+#-php bin/php
 #
 #--next
 #
-#-java bin/java/rx
+#-java bin/java
 #
-#--next
-#
-#-cs bin/cs/rx
+--next
+
+-cs bin/cs
 #
 #--next
 #
