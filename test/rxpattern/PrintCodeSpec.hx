@@ -21,11 +21,7 @@ import rxpattern.internal.Util.*;
         asserts.assert( 
             printCode(0xD7FF) ==
             #if (js || cs || hl || flash) 
-                #if (nodejs || js && js_es > 5) 
-                    '\\u{D7FF}'
-                #else
-                    '\\uD7FF'
-                #end
+                '\\uD7FF'
             #elseif python
                 '\\uD7FF'
             #else

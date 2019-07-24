@@ -4,6 +4,8 @@ import rxpattern.RxPattern;
 
 @:asserts class CategorySpec {
 
+    public function new() {}
+
     public function test4() {
         //trace( GeneralCategory.Letter );
         //trace( rxpattern.UnicodePatternUtil.printCategory('L') );

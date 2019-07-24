@@ -1,15 +1,13 @@
 package rxpattern.internal.python;
 
-import rxpattern.internal.std.Util.*;
-
-import uhx.sys.seri.Range;
 import uhx.sys.seri.Ranges;
 import rxpattern.RxPattern;
+import rxpattern.internal.std.Util as StdUtil;
 
 class Util {
 
     public static function printCode(v:Int):String {
-        if (inline isValidAscii(v)) {
+        if (inline StdUtil.isValidAscii(v)) {
             return String.fromCharCode(v);
         }
         var hex = StringTools.hex(v, (v >= 0x10000) ? 8 : 4);
@@ -23,6 +21,6 @@ class Util {
     }
 
     public static inline function printRanges(ranges:Ranges):RxPattern 
-        return printRanges(ranges);
+        return StdUtil.printRanges(ranges);
 
 }

@@ -5,7 +5,6 @@ import uhx.sys.seri.Range;
 import uhx.sys.seri.Ranges;
 import rxpattern.RxPattern;
 import rxpattern.internal.Target;
-
 import rxpattern.internal.std.Util as StdUtil;
 
 class Util {
@@ -63,87 +62,4 @@ class Util {
         }
     }
 
-/*
-    public static function printRanges(ranges:Ranges):RxPattern {
-        var label = 0;
-        var buf = new StringBuf();
-        var open:Null<Bool> = true;
-        var includeHighSurrogates = true;
-
-        for (range in ranges.values) {
-            if (open != null && open) {
-                // utf16
-                if (range.min >= 0xDC00 && range.max <= 0xDFFF) {
-                    buf.add('(?:[^' + printCode(0xD800) + '-' + printCode(0xDBFF) + ']|^)');
-                }
-                buf.add('[');
-                open = false;
-            }
-
-            if (!NodeJS && !Python && range.min >= 0x10000) {
-                includeHighSurrogates = false;
-                var minhi = ((range.min - 0x10000) >> 10) | 0xD800;
-                var minlo = ((range.min - 0x10000) & 0x3FF) | 0xDC00;
-                var maxhi = ((range.max - 0x10000) >> 10) | 0xD800;
-                var maxlo = ((range.max - 0x10000) & 0x3FF) | 0xDC00;
-
-                var high = minhi;
-                if (high != label) {
-                    if (open != null && !open) {
-                        buf.add(']');
-                        open = null;
-                    }
-                    buf.add( '|' );
-                    buf.add( printCode(high) );
-                    
-                }
-
-                switch range.length {
-                    case 0: 
-                        buf.add( printCode(minlo) );
-
-                    case 1:
-                        buf.add( printCode(minlo) );
-                        buf.add( printCode(maxlo) );
-
-                    case _:
-                        if (label != high) buf.add('[');
-                        buf.add( printCode(minlo) + '-' + printCode(maxlo) );
-                        open = false;
-                    
-                }
-
-                if (label != high) {
-                    label = high;
-                }
-
-            } else {
-                switch range.length {
-                    case 0: 
-                        buf.add( printCode(range.min) );
-
-                    case 1:
-                        buf.add( printCode(range.min) );
-                        buf.add( printCode(range.max) );
-
-                    case _:
-                        buf.add( printCode(range.min) + '-' + printCode(range.max) );
-                    
-                }
-
-            }
-        }
-
-        if (open != null && !open) {
-            buf.add(']');
-            // utf16
-            if (includeHighSurrogates && label >= 0xD800 && label <= 0xDBFF) {
-                buf.add('(?![' + printCode(0xDC00) + '-' + printCode(0xDFFF) + '])');
-            }
-            open = null;
-        }
-
-        return RxPattern.Atom(buf.toString());
-    }
-*/
 }

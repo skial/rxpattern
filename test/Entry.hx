@@ -9,10 +9,10 @@ class Entry {
         Runner.run(TestBatch.make([
             new rxpattern.PrintCodeSpec(),
             new rxpattern.PrintRangeSpec(),
-            new rxpattern.IntSetSpec(),
-            new rxpattern.RxPatternSpec(),
-            new rxpattern.ExampleSpec(),
-            //new rxpattern.CategorySpec(),
+            /*new rxpattern.IntSetSpec(),
+            /*new rxpattern.RxPatternSpec(),
+            /*new rxpattern.ExampleSpec(),
+            new rxpattern.CategorySpec(),*/
         ])).handle( Runner.exit );
     }
 

@@ -11,36 +11,8 @@ using rxpattern.internal.std.Util;
 
 class Util {
 
-    /*public static function printCode(v:Int):String {
-        switch v {
-            #if (!nodejs && js)
-            case 0:
-                return js.Syntax.code("\"\\0\"");
-            #end
-
-            case _.isValidAscii() => true:
-                return String.fromCharCode(v);
-
-            case _:
-
-        }
-        return 
-        #if (nodejs || (js && js_es > 5))
-            // Haxe only supports es5 or greater.
-            // ES6/ES2015 introduced `u` flag & `\u{0123}` format.
-            '\\u{' + StringTools.hex(v, 4) + '}';
-        #else
-            '\\u' + StringTools.hex(v, 4);
-        #end
-    }*/
     public static inline function printCode(v:Int):String
-        return switch v {
-            #if js
-            case 0: return '\\0';
-            case x if(!x.isValidAscii() && x <= 0xFF): return '\\x' + StringTools.hex(v, 2);
-            #end
-            case _: rxpattern.internal.std.Util.printCode(v);
-        }
+        return rxpattern.internal.js.Util.printCode(v);
 
     public static var HI = new Range(0xD800, 0xDBFF);
     public static var LO = new Range(0xDC00, 0xDFFF);
@@ -59,7 +31,6 @@ class Util {
 
         while (idx < len) {
             range = ranges.values[idx];
-            ////untyped console.log( range );
             
             if (range.min < HI.min) {
 
@@ -173,7 +144,6 @@ class Util {
             }
 
             idx++;
-            ////untyped console.log('' + bmp);
 
         }
 
@@ -260,7 +230,6 @@ class Util {
 		//       [ highSurrogates1, lowSurrogates1 ],
 		//       [ highSurrogates2, lowSurrogates2 ]
 		//     ]
-        //untyped console.log( surrogateMappings );
 		return optimizeSurrogateMappings(surrogateMappings);
     }
 
@@ -277,16 +246,13 @@ class Util {
         var nextLo:Range;
         var idx = -1;
         var len = surrogateMappings.length;
-        //trace( surrogateMappings );
+        
         while (++idx < len) {
             mapping = surrogateMappings[idx];
-            //trace( mapping );
             nextMapping = surrogateMappings[idx + 1];
 
             if (nextMapping == null) {
-                //result.push(mapping);
                 result.push( {a:new Ranges([mapping.a]), b:new Ranges([mapping.b])} );
-                //result.push(mapping.b);
                 continue;
             }
 
@@ -303,7 +269,7 @@ class Util {
                     tmpLow.add(nextLo.min);
 
                 } else {
-                    tmpLow.add(new Range(nextLo.min, nextLo.max/*-1*/));
+                    tmpLow.add(new Range(nextLo.min, nextLo.max));
 
                 }
                 ++idx;
@@ -322,14 +288,10 @@ class Util {
                 
             }
             result.push( {a:new Ranges([hi]), b:addLow ? tmpLow : new Ranges([lo])} );
-            //addLow ? for (r in tmpLow.values) result.push(r) : result.push(lo);
             addLow = false;
         }
 
-        //////untyped console.log( result );
         return optimizeByLowSurrogates(result);
-        //trace( result );
-        //return result;
     }
 
     // @see https://github.com/mathiasbynens/regenerate/blob/master/regenerate.js#L853
@@ -366,12 +328,10 @@ class Util {
         return surrogateMappings;
     }
 
-    public static function printRanges(ranges:Ranges):RxPattern {
-        //#if (cs || js && !nodejs)
+    @:nullSafety(Strict) public static function printRanges(ranges:Ranges):RxPattern {
         ranges = ranges.copy();
         var results = [];
         var parts = splitAtBMP(ranges);
-        //untyped console.log( parts );
         var loneHi = parts.loneHi;
         var loneLo = parts.loneLo;
         var bmp = parts.bmp;
@@ -379,11 +339,11 @@ class Util {
         var hasLoneHi = loneHi.length > 0;
         var hasLoneLo = loneLo.length > 0;
         var surrogateMappings = surrogateSet(new Ranges(astral));
-        //untyped console.log( surrogateMappings );
         
         if (bmp.length > 0) {
             results.push( StdUtil.printRanges(new Ranges(bmp)).get() );
         }
+
         if (surrogateMappings.length > 0) {
             for (mapping in surrogateMappings) {
                 results.push(
@@ -392,18 +352,21 @@ class Util {
                 );
             }
         }
+
         if (hasLoneHi) {
             results.push(
                 StdUtil.printRanges(new Ranges(loneHi)).get() + 
                 '(?![${TargetUtil.printCode(0xDC00)}-${TargetUtil.printCode(0xDFFF)}])'
             );
         }
+
         if (hasLoneLo) {
             results.push(
                 '(?:[^${TargetUtil.printCode(0xD800)}-${TargetUtil.printCode(0xDBFF)}]|^)' +
                 StdUtil.printRanges(new Ranges(loneLo)).get()
             );
         }
+
         return RxPattern.Disjunction(results.join('|'));
     }
 

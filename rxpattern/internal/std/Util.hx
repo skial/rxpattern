@@ -4,8 +4,7 @@ import uhx.sys.seri.Range;
 import uhx.sys.seri.Ranges;
 import rxpattern.RxPattern;
 import rxpattern.internal.Escape;
-
-import rxpattern.internal.Util.printCode as _printCode;
+import rxpattern.internal.Util as TargetUtil;
 
 class Util {
 
@@ -37,7 +36,7 @@ class Util {
         var len = ranges.values.length - 1;
         var range:Range;
 
-        if (ranges.length == 0) return RxPattern.Atom(_printCode(ranges.min));
+        if (ranges.length == 0) return RxPattern.Atom(TargetUtil.printCode(ranges.min));
 
         while (idx <= len) {
             range = ranges.values[idx];
@@ -47,58 +46,19 @@ class Util {
                 open = false;
             }
 
-            /*if (range.min >= 0x10000) {
-                var minhi = ((range.min - 0x10000) >> 10) | 0xD800;
-                var minlo = ((range.min - 0x10000) & 0x3FF) | 0xDC00;
-                var maxhi = ((range.max - 0x10000) >> 10) | 0xD800;
-                var maxlo = ((range.max - 0x10000) & 0x3FF) | 0xDC00;
+            label = range.min;
+            switch range.length {
+                case 0: 
+                    buf.add( TargetUtil.printCode(range.min) );
 
-                var high = minhi;
-                if (high != label) {
-                    if (open != null && !open) {
-                        buf.add(']');
-                        open = null;
-                    }
-                    buf.add( '|' );
-                    buf.add( printCode(high) );
-                    
-                }
+                case 1:
+                    buf.add( TargetUtil.printCode(range.min) );
+                    buf.add( TargetUtil.printCode(range.max) );
 
-                switch range.length {
-                    case 0: 
-                        buf.add( printCode(minlo) );
-
-                    case 1:
-                        buf.add( printCode(minlo) );
-                        buf.add( printCode(maxlo) );
-
-                    case _:
-                        if (label != high) buf.add('[');
-                        buf.add( printCode(minlo) + '-' + printCode(maxlo) );
-                        open = false;
-                    
-                }
-
-                if (label != high) {
-                    label = high;
-                }
-
-            } else {*/
-                label = range.min;
-                switch range.length {
-                    case 0: 
-                        buf.add( _printCode(range.min) );
-
-                    case 1:
-                        buf.add( _printCode(range.min) );
-                        buf.add( _printCode(range.max) );
-
-                    case _:
-                        buf.add( _printCode(range.min) + '-' + _printCode(range.max) );
-                    
-                }
-
-            //}
+                case _:
+                    buf.add( TargetUtil.printCode(range.min) + '-' + TargetUtil.printCode(range.max) );
+                
+            }
 
             idx++;
         }

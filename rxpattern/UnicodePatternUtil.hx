@@ -2,8 +2,7 @@ package rxpattern;
 
 import rxpattern.RxErrors;
 import uhx.sys.seri.Category;
-import rxpattern.internal.Util.printCode;
-import rxpattern.internal.Util.printRanges;
+import rxpattern.internal.Util.*;
 
 #if (eval || macro)
 import haxe.macro.Expr;
@@ -80,19 +79,19 @@ class UnicodePatternUtil
     }
 
     public macro static function printCategory(category:String):ExprOf<RxPattern> {
-        var range:Ranges = (cast category:uhx.sys.seri.v800.Category).asRange();
+        var range:Ranges = (cast category:Category).asRange();
         if (range.min == 0 && range.max == 0) {
             // Incorrect Category.
             Context.error('$category is not a valid value of uhx.sys.seri.Category.', Context.currentPos());
             return null;
         } else {
             var pattern = if (jsStyle || pythonStyle || Cpp) {
-                var value = printRanges(range);
-                if (jsStyle) {
+                var value = printRanges(range).get();
+                //if (jsStyle) {
                     macro new RxPattern.Disjunction($v{value});
-                } else {
+                /*} else {
                     macro new RxPattern.Atom($v{value});
-                }
+                }*/
 
             } else {
                 macro new RxPattern.Atom($v{'\\p{$category}'});
