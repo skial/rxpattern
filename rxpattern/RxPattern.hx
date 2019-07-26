@@ -135,9 +135,9 @@ abstract RxPattern(Pattern)
         {
             #if debug
             trace(s);
-                if (!rxSingleCodePoint.match(s)) {
-                    throw Char_NotSingleCharacter;
-                }
+            if (!rxSingleCodePoint.match(s)) {
+                throw Char_NotSingleCharacter;
+            }
             #end
             var v = s.charCodeAt(0);
             if (0xD800 <= v && v < 0xDC00) {
@@ -147,10 +147,10 @@ abstract RxPattern(Pattern)
             }
         }
     #end
+    
     macro public static function Char(x:ExprOf<String>) {
         return rxpattern.internal.Macros._Char(x);
     }
-
     
     macro public static function String(x:ExprOf<String>) {
         return rxpattern.internal.Macros._String(x);

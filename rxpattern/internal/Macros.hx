@@ -117,12 +117,12 @@ class Macros {
         switch x.expr {
             case EConst(CString(v)):
                 try {
+                    if (v.length == 0) {
+                        return macro new rxpattern.RxPattern.Alternative($x);
+                    }
                     var escaped = RxPattern.escapeString(v);
                     var expr = macro @:pos(pos) $v{escaped};
                     var useSurrogates = (!NodeJS && JavaScript) || CSharp;
-                    if (v.length == 0) {
-                        return macro new rxpattern.RxPattern.Alternative($expr);
-                    }
 
                     var y = InternalEncoding.codePointAt(v, 0);
                     var isSingleCodePoint = CodePoint.fromInt(y) == v;
