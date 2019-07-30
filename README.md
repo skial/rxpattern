@@ -39,8 +39,8 @@ rx3.match("\ncolour"); // => false
 ```
 
 ```haxe
-var wordStart = GeneralCategory.Letter | RxPattern.Char("_");
-var wordChar = wordStart | GeneralCategory.Number;
+var wordStart = Category.L | RxPattern.Char("_");
+var wordChar = wordStart | Category.N;
 var word = wordStart >> wordChar.many();
 var pattern4 = RxPattern.AtStart >> word >> RxPattern.AtEnd;
 var rx4 = pattern4.build();
@@ -49,17 +49,6 @@ rx4.match("int32_t"); // => true
 rx4.match("\u3042"); // => true
 rx4.match("24hours"); // => false
 ```
-
-## Supported Target Platforms
-
-- Neko VM (UTF-8, PCRE)
-- PHP (UTF-8, PCRE)
-- C++ (UTF-8, PCRE)
-- ~Lua (UTF-8, PCRE)~ Untested
-- JavaScript (UTF-16, native RegExp)
-- C# (UTF-16, [System.Text.RegularExpressions.Regex](https://msdn.microsoft.com/en-us/library/az24scfc%28v=vs.110%29.aspx))
-- Java (UTF-16, [java.util.regex](http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html))
-- Python (UTF-32, [re](https://docs.python.org/3/library/re.html#re-syntax))
 
 ## Manual
 

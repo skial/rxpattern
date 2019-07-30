@@ -148,7 +148,7 @@ class Macros {
 
     // CharSet macros
 
-    public static function _fromString(x:ExprOf<String>) {
+    public static function _fromString(x:ExprOf<String>):Null<ExprOf<RxPattern>> {
         var pos = x.pos;
 
         switch x.expr {

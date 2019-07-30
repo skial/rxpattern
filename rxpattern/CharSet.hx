@@ -68,4 +68,8 @@ abstract CharSet(Ranges) from Ranges to Ranges {
         #end
         return InternalEncoding.codePointAt(s, 0);
     }
+
+    @:to public inline function asRxPattern():RxPattern {
+        return rxpattern.internal.Util.printRanges(this);
+    }
 }

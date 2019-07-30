@@ -7,7 +7,7 @@ import rxpattern.internal.Target;
 class MinMax {
 
     public static var MIN:Int = 
-    #if (eval || macro) 
+    #if (interp || eval || macro) 
         if (Interp || Neko || HashLink || Php) {
             1;
         } else {

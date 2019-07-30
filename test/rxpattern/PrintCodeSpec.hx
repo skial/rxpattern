@@ -20,17 +20,19 @@ import rxpattern.internal.Util.*;
         asserts.assert( printCode(0x75) == 'u' );
         asserts.assert( 
             printCode(0xD7FF) ==
-            #if (js || cs || hl || flash) 
+            #if (js || cs || flash) 
                 '\\uD7FF'
             #elseif python
                 '\\uD7FF'
+            #elseif hl
+                '\u{D7FF}'
             #else
                 '\\x{D7FF}'
             #end
         );
         asserts.assert( 
             printCode(0x10FFFF) ==
-            #if (js || cs || hl || flash) 
+            #if (js || cs || flash) 
                 #if (nodejs || js && js_es > 5) 
                     '\\u{10FFFF}'
                 #else
@@ -38,6 +40,8 @@ import rxpattern.internal.Util.*;
                 #end
             #elseif python
                 '\\U0010FFFF'
+            #elseif hl
+                '\u{10FFFF}'
             #else
                 '\\x{10FFFF}'
             #end

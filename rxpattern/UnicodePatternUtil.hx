@@ -85,13 +85,9 @@ class UnicodePatternUtil
             Context.error('$category is not a valid value of uhx.sys.seri.Category.', Context.currentPos());
             return null;
         } else {
-            var pattern = if (jsStyle || pythonStyle || Cpp) {
+            var pattern = if (!(NodeJS || (Context.defined('js-es') && Std.parseInt(Context.definedValue('js-es')) > 5)) && (jsStyle || pythonStyle || Cpp)) {
                 var value = printRanges(range).get();
-                //if (jsStyle) {
-                    macro new RxPattern.Disjunction($v{value});
-                /*} else {
-                    macro new RxPattern.Atom($v{value});
-                }*/
+                macro new RxPattern.Disjunction($v{value});
 
             } else {
                 macro new RxPattern.Atom($v{'\\p{$category}'});
