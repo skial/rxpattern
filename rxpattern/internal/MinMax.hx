@@ -1,7 +1,7 @@
 package rxpattern.internal;
 
 #if (eval || macro)
-import rxpattern.internal.Target;
+import rxpattern.internal.Define;
 #end
 
 class MinMax {

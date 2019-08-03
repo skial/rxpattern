@@ -4,21 +4,17 @@ import unifill.Unicode;
 import uhx.sys.seri.Range;
 import uhx.sys.seri.Ranges;
 import rxpattern.RxPattern;
-import rxpattern.internal.Util as TargetUtil;
-import rxpattern.internal.std.Util as StdUtil;
+import rxpattern.internal.MinMax.*;
+import rxpattern.internal.CodeUtil;
+import rxpattern.internal.std.RangeUtil as StdRangeUtil;
 
-using rxpattern.internal.std.Util;
-
-class Util {
-
-    public static inline function printCode(v:Int):String
-        return rxpattern.internal.js.Util.printCode(v);
+class RangeUtil {
 
     public static var HI = new Range(0xD800, 0xDBFF);
     public static var LO = new Range(0xDC00, 0xDFFF);
 
     // @see https://github.com/mathiasbynens/regenerate/blob/master/regenerate.js#L667
-    public static function splitAtBMP(ranges:Ranges) {
+    @:nullSafety(Strict) public static function splitAtBMP(ranges:Ranges) {
         var loneHi = [];
         var loneLo = [];
         var bmp = [];
@@ -328,8 +324,8 @@ class Util {
         return surrogateMappings;
     }
 
-    @:nullSafety(Strict) public static function printRanges(ranges:Ranges):RxPattern {
-        ranges = ranges.copy();
+    @:nullSafety(Strict) public static function printRanges(ranges:Ranges, invert:Bool):RxPattern {
+        ranges = invert ? Ranges.complement(ranges, MIN, MAX) : ranges.copy();
         var results = [];
         var parts = splitAtBMP(ranges);
         var loneHi = parts.loneHi;
@@ -341,29 +337,29 @@ class Util {
         var surrogateMappings = surrogateSet(new Ranges(astral));
         
         if (bmp.length > 0) {
-            results.push( StdUtil.printRanges(new Ranges(bmp)).get() );
+            results.push( StdRangeUtil.printRanges(new Ranges(bmp), false).get() );
         }
 
         if (surrogateMappings.length > 0) {
             for (mapping in surrogateMappings) {
                 results.push(
-                    StdUtil.printRanges(mapping.a).get() +
-                    StdUtil.printRanges(mapping.b).get()
+                    StdRangeUtil.printRanges(mapping.a, false).get() +
+                    StdRangeUtil.printRanges(mapping.b, false).get()
                 );
             }
         }
 
         if (hasLoneHi) {
             results.push(
-                StdUtil.printRanges(new Ranges(loneHi)).get() + 
-                '(?![${TargetUtil.printCode(0xDC00)}-${TargetUtil.printCode(0xDFFF)}])'
+                StdRangeUtil.printRanges(new Ranges(loneHi), false).get() + 
+                '(?![${CodeUtil.printCode(0xDC00)}-${CodeUtil.printCode(0xDFFF)}])'
             );
         }
 
         if (hasLoneLo) {
             results.push(
-                '(?:[^${TargetUtil.printCode(0xD800)}-${TargetUtil.printCode(0xDBFF)}]|^)' +
-                StdUtil.printRanges(new Ranges(loneLo)).get()
+                '(?:[^${CodeUtil.printCode(0xD800)}-${CodeUtil.printCode(0xDBFF)}]|^)' +
+                StdRangeUtil.printRanges(new Ranges(loneLo), false).get()
             );
         }
 

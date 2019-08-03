@@ -12,7 +12,6 @@
 -D analyzer-optimize
 -D eval-stack
 
-#-main Test
 -main Entry
 
 --each
@@ -43,7 +42,13 @@
 
 --next
 
+## Java version 7+
 -java bin/java
+
+--next
+
+-D java-ver=6
+-java bin/java6
 
 --next
 

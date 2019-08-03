@@ -19,9 +19,10 @@ abstract CharSet(Ranges) from Ranges to Ranges {
 
     @:from public static inline function fromStringD(s:String) {
         var rs = new Ranges([]);
-        for (i in new CodePointIter(s)) 
+        for (i in new CodePointIter(s)) {
             if (!rs.has(i.toInt())) rs.add(i.toInt());
-        
+        }
+        //trace( rs.values.map(r -> '${r.min}::${r.max}') );
         var c = new CharSet(rs);
         return c;
     }
@@ -70,6 +71,6 @@ abstract CharSet(Ranges) from Ranges to Ranges {
     }
 
     @:to public inline function asRxPattern():RxPattern {
-        return rxpattern.internal.Util.printRanges(this);
+        return rxpattern.internal.RangeUtil.printRanges(this, false);
     }
 }

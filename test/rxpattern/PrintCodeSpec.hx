@@ -1,6 +1,7 @@
 package rxpattern;
 
-import rxpattern.internal.Util.*;
+import rxpattern.internal.CodeUtil.*;
+import rxpattern.internal.RangeUtil.*;
 
 #if (js || cs || hl || flash) 
                 
@@ -24,7 +25,7 @@ import rxpattern.internal.Util.*;
                 '\\uD7FF'
             #elseif python
                 '\\uD7FF'
-            #elseif hl
+            #elseif (hl || java)
                 '\u{D7FF}'
             #else
                 '\\x{D7FF}'
@@ -40,7 +41,7 @@ import rxpattern.internal.Util.*;
                 #end
             #elseif python
                 '\\U0010FFFF'
-            #elseif hl
+            #elseif (hl || java)
                 '\u{10FFFF}'
             #else
                 '\\x{10FFFF}'

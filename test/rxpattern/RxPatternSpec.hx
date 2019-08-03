@@ -2,8 +2,8 @@ package rxpattern;
 
 import unifill.Unifill;
 import rxpattern.CharSet;
+import rxpattern.RxPattern;
 import tink.unit.AssertionBuffer;
-import rxpattern.RxPattern.Disjunction;
 
 using rxpattern.RxPatternSpec;
 
@@ -12,16 +12,18 @@ using rxpattern.RxPatternSpec;
     public function new() {}
 
     public static inline function pattern(a:AssertionBuffer, s:String, p:RxPattern, ?pos:haxe.PosInfos):Void {
-        a.assert( s == RxPattern.getPattern(p), '`${RxPattern.getPattern(p)}` == $s', pos );
+        //trace( p.get() );
+        a.assert( s == RxPattern.getPattern(p), pos );
     }
 
     public static inline function matches(a:AssertionBuffer, s:String, p:Disjunction, ?pos:haxe.PosInfos):Void {
-        a.assert( RxPattern.buildEReg(p).match(s), '`RxPattern.buildEReg(p)` == ${RxPattern.buildEReg(p)} `.match(s)` == $s', pos );
+        //trace( p.get() );
+        a.assert( RxPattern.buildEReg(p).match(s), pos );
     }
 
     public static inline function notMatches(a:AssertionBuffer, s:String, p:Disjunction, ?pos:haxe.PosInfos):Void {
-        trace( p.get() );
-        a.assert( !RxPattern.buildEReg(p).match(s), '`!RxPattern.buildEReg(p)` == ${RxPattern.buildEReg(p)} `.match(s)` == $s', pos );
+        //trace( p.get() );
+        a.assert( !RxPattern.buildEReg(p).match(s), pos );
     }
 
     public function testBasic() {

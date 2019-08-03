@@ -6,7 +6,7 @@ import haxe.macro.Context;
 import rxpattern.RxErrors;
 import rxpattern.RxPattern;
 import uhx.sys.seri.Ranges;
-import rxpattern.internal.Target;
+import rxpattern.internal.Define;
 import rxpattern.internal.MinMax.*;
 
 using tink.MacroApi;
@@ -32,7 +32,7 @@ class Macros {
 
     public static function _Char(x:ExprOf<String>):Null<Expr> {
         var pos = x.pos;
-        var useSurrogates = (!NodeJS && JavaScript) || CSharp;
+        var useSurrogates = (!NodeJS && JavaScript) || CSharp/* || (Java && JavaVersion < 7)*/;
         
         switch x.expr {
             case EConst(CString(v)):
@@ -96,8 +96,9 @@ class Macros {
             case EConst(CString(v)):
                 try {
                     var charset = CharSet.fromStringD(v);
-                    var invert = Ranges.complement(charset);
-                    var cs = RxPattern.CharSet(invert.clamp(MIN, MAX));
+                    /*var invert = Ranges.complement(charset);
+                    var cs = RxPattern.CharSet(invert.clamp(MIN, MAX));*/
+                    var cs = RxPattern.NotInSet(charset);
                     var ex = _toStatic(cs, pos);
                     return ex;
 
@@ -122,7 +123,7 @@ class Macros {
                     }
                     var escaped = RxPattern.escapeString(v);
                     var expr = macro @:pos(pos) $v{escaped};
-                    var useSurrogates = (!NodeJS && JavaScript) || CSharp;
+                    var useSurrogates = (!NodeJS && JavaScript) || CSharp/* || (Java && JavaVersion < 7)*/;
 
                     var y = InternalEncoding.codePointAt(v, 0);
                     var isSingleCodePoint = CodePoint.fromInt(y) == v;
@@ -143,7 +144,8 @@ class Macros {
 
         }
 
-        return return macro new rxpattern.RxPattern.Alternative(rxpattern.RxPattern.escapeString($x));
+        var expr = macro @:pos(x.pos) new rxpattern.RxPattern.Alternative(rxpattern.RxPattern.escapeString($x));
+        return expr;
     }
 
     // CharSet macros

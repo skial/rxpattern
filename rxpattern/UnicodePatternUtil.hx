@@ -2,13 +2,14 @@ package rxpattern;
 
 import rxpattern.RxErrors;
 import uhx.sys.seri.Category;
-import rxpattern.internal.Util.*;
 
 #if (eval || macro)
 import haxe.macro.Expr;
 import haxe.macro.Context;
 import uhx.sys.seri.Ranges;
-import rxpattern.internal.Target;
+import rxpattern.internal.Define;
+import rxpattern.internal.CodeUtil;
+import rxpattern.internal.RangeUtil;
 #end
 
 /* This class is not used at runtime */
@@ -54,20 +55,20 @@ class UnicodePatternUtil
                 value = value * 16 + hexToInt(m.charAt(l));
             }
             if (perlStyle) {
-                translatedBuf.add(printCode(value));
+                translatedBuf.add(CodeUtil.printCode(value));
 
             } else {
                 if (value >= 0x10000) {
                     if (jsStyle || !onlyBMP) {
                         var hi = ((value - 0x10000) >> 10) | 0xD800;
                         var lo = ((value - 0x10000) & 0x3FF) | 0xDC00;
-                        translatedBuf.add(printCode(hi) + printCode(lo));
+                        translatedBuf.add(CodeUtil.printCode(hi) + CodeUtil.printCode(lo));
                     } else {
                         Context.error(Unicode_GreaterThanBMP, pos);
                         return null;
                     }
                 } else {
-                    translatedBuf.add(printCode(value));
+                    translatedBuf.add(CodeUtil.printCode(value));
 
                 }
             }
@@ -85,8 +86,8 @@ class UnicodePatternUtil
             Context.error('$category is not a valid value of uhx.sys.seri.Category.', Context.currentPos());
             return null;
         } else {
-            var pattern = if (!(NodeJS || (Context.defined('js-es') && Std.parseInt(Context.definedValue('js-es')) > 5)) && (jsStyle || pythonStyle || Cpp)) {
-                var value = printRanges(range).get();
+            var pattern = if (!(NodeJS || (ES_ && ES_ > 5)) && (jsStyle || pythonStyle || Cpp)) {
+                var value = RangeUtil.printRanges(range, false).get();
                 macro new RxPattern.Disjunction($v{value});
 
             } else {

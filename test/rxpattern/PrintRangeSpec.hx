@@ -2,8 +2,8 @@ package rxpattern;
 
 import uhx.sys.seri.Range;
 import uhx.sys.seri.Ranges;
-import rxpattern.internal.Util.*;
-import rxpattern.internal.Util.printCode as p;
+import rxpattern.internal.RangeUtil.*;
+import rxpattern.internal.CodeUtil.printCode as p;
 
 #if js
 #if nodejs 
@@ -30,10 +30,10 @@ extern class Regenerate {
 
     public function printRanges1() {
         var rs = new Ranges([new Range(0x305, 0x374)]);
-        asserts.assert( printRanges(rs).get() == '[${p(0x305)}-${p(0x374)}]' );
+        asserts.assert( printRanges(rs, false).get() == '[${p(0x305)}-${p(0x374)}]' );
         #if js
         var rg = new Regenerate().addRange(0x305, 0x374);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
         return asserts.done();
     }
@@ -43,12 +43,12 @@ extern class Regenerate {
         rs.remove(new Range(0x100, 0x200));
         
         asserts.assert( 
-            printRanges(rs).get() == 
+            printRanges(rs, false).get() == 
             '[$NUL-${p(0x00FF)}${p(0x0201)}-${p(0x0300)}]' 
         );
         #if js
         var rg = new Regenerate().addRange(0, 0x300).removeRange(0x100, 0x200);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
         return asserts.done();
     }
@@ -59,13 +59,13 @@ extern class Regenerate {
         rs.add(0x5A);
         rs.add(0x61);
 
-        asserts.assert( printRanges(rs).get() == '[A-HZa]' );
+        asserts.assert( printRanges(rs, false).get() == '[A-HZa]' );
         #if js
         var rg = new Regenerate();
         for (i in 'A'.code...'I'.code) rg.add(i);
         rg.add(0x5A);
         rg.add(0x61);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
         return asserts.done();
     }
@@ -78,7 +78,7 @@ extern class Regenerate {
         rs.add('\\'.code); // code 92
         rs.add('/'.code); // code 47
 
-        asserts.assert( printRanges(rs).get() == '[ !#/\\]' );
+        asserts.assert( printRanges(rs, false).get() == '[ !#/\\]' );
 
         #if js
         var rg = new Regenerate();
@@ -87,7 +87,7 @@ extern class Regenerate {
         rg.add('#'.code);
         rg.add('\\'.code); // code 92
         rg.add('/'.code); // code 47
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -102,8 +102,8 @@ extern class Regenerate {
         rs.add(0xDBFF);
 
         asserts.assert( 
-            printRanges(rs).get() == 
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() == 
+            #if ((!nodejs && (js || cs)))
             '[${p(0xD800)}-${p(0xD803)}${p(0xDBFF)}](?![${p(0xDC00)}-${p(0xDFFF)}])' 
             #else
             '[${p(0xD800)}-${p(0xD803)}${p(0xDBFF)}]'
@@ -117,7 +117,7 @@ extern class Regenerate {
         rg.add(0xD802);
         rg.add(0xD803);
         rg.add(0xDBFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -137,8 +137,8 @@ extern class Regenerate {
         rs.add(0xDFFF);
 
         asserts.assert( 
-            printRanges(rs).get() == 
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() == 
+            #if ((!nodejs && (js || cs)))
             '(?:[^${p(0xD800)}-${p(0xDBFF)}]|^)[${p(0xDC00)}-${p(0xDC05)}${p(0xDFFB)}${p(0xDFFD)}-${p(0xDFFF)}]' 
             #else
             '[${p(0xDC00)}-${p(0xDC05)}${p(0xDFFB)}${p(0xDFFD)}-${p(0xDFFF)}]'
@@ -157,7 +157,7 @@ extern class Regenerate {
         rg.add(0xDFFD);
         rg.add(0xDFFE);
         rg.add(0xDFFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -175,8 +175,8 @@ extern class Regenerate {
         rs.add(0x1D30A);
 
         asserts.assert( 
-            printRanges(rs).get() == 
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() == 
+            #if ((!nodejs && (js || cs)))
             '[$NUL-${p(0x0003)}]|${p(0xD834)}[${p(0xDF06)}-${p(0xDF08)}${p(0xDF0A)}]' 
             #else
             '[${p(0)}-${p(0x3)}${p(0x1D306)}-${p(0x1D308)}${p(0x1D30A)}]'
@@ -193,7 +193,7 @@ extern class Regenerate {
         rg.add(0x1D307);
         rg.add(0x1D308);
         rg.add(0x1D30A);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -203,8 +203,8 @@ extern class Regenerate {
         var rs = new Ranges([new Range(0x0, 0xFFFF)]);
 
         asserts.assert(
-            printRanges(rs).get() ==
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() ==
+            #if ((!nodejs && (js || cs)))
             '[$NUL-${p(0xD7FF)}${p(0xE000)}-${p(0xFFFF)}]|[${p(0xD800)}-${p(0xDBFF)}](?![${p(0xDC00)}-${p(0xDFFF)}])|(?:[^${p(0xD800)}-${p(0xDBFF)}]|^)[${p(0xDC00)}-${p(0xDFFF)}]'
             #else
             '[${p(0)}-${p(0xFFFF)}]'
@@ -214,7 +214,7 @@ extern class Regenerate {
         #if js
         var rg = new Regenerate();
         rg.addRange(0x0, 0xFFFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -224,8 +224,8 @@ extern class Regenerate {
         var rs = new Ranges([new Range(0x103FE, 0x10401)]);
 
         asserts.assert(
-            printRanges(rs).get() ==
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() ==
+            #if ((!nodejs && (js || cs)))
             '${p(0xD800)}[${p(0xDFFE)}${p(0xDFFF)}]|${p(0xD801)}[${p(0xDC00)}${p(0xDC01)}]'
             #else
             '[${p(0x103FE)}-${p(0x10401)}]'
@@ -235,7 +235,7 @@ extern class Regenerate {
         #if js
         var rg = new Regenerate();
         rg.addRange(0x103FE, 0x10401);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
         return asserts.done();
     }
@@ -245,8 +245,8 @@ extern class Regenerate {
         rs.add(new Range(0x010000, 0x10FFFF));
 
         asserts.assert( 
-            printRanges(rs).get() == 
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() == 
+            #if ((!nodejs && (js || cs)))
             '[${p(0xD800)}-${p(0xDBFF)}][${p(0xDC00)}-${p(0xDFFF)}]'
             #else
             '[${p(0x010000)}-${p(0x10FFFF)}]'
@@ -255,7 +255,7 @@ extern class Regenerate {
 
         #if js
         var rg = new Regenerate().addRange(0x010000, 0x10FFFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
         return asserts.done();
     }
@@ -265,8 +265,8 @@ extern class Regenerate {
         rs.add(new Range(0x00, 0x10FFFF));
 
         asserts.assert(
-            printRanges(rs).get() == 
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() == 
+            #if ((!nodejs && (js || cs)))
             '[$NUL-${p(0xD7FF)}${p(0xE000)}-${p(0xFFFF)}]|[${p(0xD800)}-${p(0xDBFF)}][${p(0xDC00)}-${p(0xDFFF)}]|[${p(0xD800)}-${p(0xDBFF)}](?![${p(0xDC00)}-${p(0xDFFF)}])|(?:[^${p(0xD800)}-${p(0xDBFF)}]|^)[${p(0xDC00)}-${p(0xDFFF)}]'
             #else
             '[${p(0x00)}-${p(0x10FFFF)}]'
@@ -275,7 +275,7 @@ extern class Regenerate {
 
         #if js
         var rg = new Regenerate().addRange(0x00, 0x10FFFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -286,8 +286,8 @@ extern class Regenerate {
         rs.add(new Range(0, 0xDCFF));
 
         asserts.assert(
-            printRanges(rs).get() ==
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() ==
+            #if ((!nodejs && (js || cs)))
             '[$NUL-${p(0xD7FF)}]|[${p(0xD800)}-${p(0xDBFF)}](?![${p(0xDC00)}-${p(0xDFFF)}])|(?:[^${p(0xD800)}-${p(0xDBFF)}]|^)[${p(0xDC00)}-${p(0xDCFF)}]'
             #else
             '[${p(0)}-${p(0xDCFF)}]'
@@ -296,7 +296,7 @@ extern class Regenerate {
 
         #if js
         var rg = new Regenerate().addRange(0, 0xDCFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -308,8 +308,8 @@ extern class Regenerate {
         rs.add(new Range(0xD800, 0xDBFF));
 
         asserts.assert(
-            printRanges(rs).get() ==
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() ==
+            #if ((!nodejs && (js || cs)))
             '${p(0xD7FF)}|[${p(0xD800)}-${p(0xDBFF)}](?![${p(0xDC00)}-${p(0xDFFF)}])'
             #else
             '[${p(0xD7FF)}-${p(0xDBFF)}]'
@@ -318,7 +318,7 @@ extern class Regenerate {
 
         #if js
         var rg = new Regenerate().add(0xD800 - 1).addRange(0xD800, 0xDBFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -329,8 +329,8 @@ extern class Regenerate {
         rs.add(new Range(0xD855, 0xFFFF));
 
         asserts.assert(
-            printRanges(rs).get() ==
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() ==
+            #if ((!nodejs && (js || cs)))
             '[${p(0xE000)}-${p(0xFFFF)}]|[${p(0xD855)}-${p(0xDBFF)}](?![${p(0xDC00)}-${p(0xDFFF)}])|(?:[^${p(0xD800)}-${p(0xDBFF)}]|^)[${p(0xDC00)}-${p(0xDFFF)}]'
             #else
             '[${p(0xD855)}-${p(0xFFFF)}]'
@@ -339,7 +339,7 @@ extern class Regenerate {
 
         #if js
         var rg = new Regenerate().addRange(0xD855, 0xFFFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -350,8 +350,8 @@ extern class Regenerate {
         rs.add(new Range(0xDCFF, 0xDDFF));
 
         asserts.assert(
-            printRanges(rs).get() ==
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() ==
+            #if ((!nodejs && (js || cs)))
             '(?:[^${p(0xD800)}-${p(0xDBFF)}]|^)[${p(0xDCFF)}-${p(0xDDFF)}]'
             #else
             '[${p(0xDCFF)}-${p(0xDDFF)}]'
@@ -360,7 +360,7 @@ extern class Regenerate {
 
         #if js
         var rg = new Regenerate().addRange(0xDCFF, 0xDDFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -371,8 +371,8 @@ extern class Regenerate {
         rs.add(new Range(0xDCFF, 0x10FFFF));
 
         asserts.assert(
-            printRanges(rs).get() ==
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() ==
+            #if ((!nodejs && (js || cs)))
             '[${p(0xE000)}-${p(0xFFFF)}]|[${p(0xD800)}-${p(0xDBFF)}][${p(0xDC00)}-${p(0xDFFF)}]|(?:[^${p(0xD800)}-${p(0xDBFF)}]|^)[${p(0xDCFF)}-${p(0xDFFF)}]'
             #else
             '[${p(0xDCFF)}-${p(0x10FFFF)}]'
@@ -381,7 +381,7 @@ extern class Regenerate {
 
         #if js
         var rg = new Regenerate().addRange(0xDCFF, 0x10FFFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -394,8 +394,8 @@ extern class Regenerate {
         rs.add(new Range(0x010000, 0x0EFFFF));
 
         asserts.assert(
-            printRanges(rs).get() ==
-            #if (!nodejs && (js || cs))
+            printRanges(rs, false).get() ==
+            #if ((!nodejs && (js || cs)))
             '[${p(0x200C)}${p(0xF900)}-${p(0xFDCF)}${p(0xFDF0)}-${p(0xFFFD)}]|[${p(0xD800)}-${p(0xDB7F)}][${p(0xDC00)}-${p(0xDFFF)}]'
             #else 
             '[${p(0x200C)}${p(0xF900)}-${p(0xFDCF)}${p(0xFDF0)}-${p(0xFFFD)}${p(0x10000)}-${p(0xEFFFF)}]'
@@ -408,7 +408,7 @@ extern class Regenerate {
             .addRange(0xF900, 0xFDCF)
             .addRange(0xFDF0, 0xFFFD)
             .addRange(0x010000, 0x0EFFFF);
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
         #end
 
         return asserts.done();
@@ -420,7 +420,7 @@ extern class Regenerate {
         rs.add('e'.code);
         rs.add('l'.code);
         rs.add('o'.code);
-        asserts.assert( printRanges(rs).get() == '[ehlo]' );
+        asserts.assert( printRanges(rs, false).get() == '[ehlo]' );
         var rs1 = Ranges.complement(rs);
 
         #if js
@@ -433,8 +433,8 @@ extern class Regenerate {
         rg1.addRange(0x00, 0x10FFFF);
         rg1.remove(untyped rg);
         
-        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs).get() );
-        asserts.assert( rg1.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs1).get() );
+        asserts.assert( rg.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs, false).get() );
+        asserts.assert( rg1.toString(#if nodejs {hasUnicodeFlag: true} #end) == printRanges(rs1, false).get() );
         #end
 
         return asserts.done();
