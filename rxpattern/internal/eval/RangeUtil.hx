@@ -22,10 +22,7 @@ class RangeUtil {
         } else if (HashLink) {
             rxpattern.internal.hl.RangeUtil.printRanges(ranges, invert);
 
-        }/* else if (Java && JavaVersion && JavaVersion < 7) {
-            rxpattern.internal.utf16.RangeUtil.printRanges(ranges, invert);
-
-        } */else {
+        } else {
             rxpattern.internal.std.RangeUtil.printRanges(ranges, invert);
 
         }

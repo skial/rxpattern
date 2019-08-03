@@ -3,7 +3,6 @@ package rxpattern.internal.std;
 import uhx.sys.seri.Range;
 import uhx.sys.seri.Ranges;
 import rxpattern.RxPattern;
-import rxpattern.internal.Escape;
 import rxpattern.internal.CodeUtil;
 
 class RangeUtil {

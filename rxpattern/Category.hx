@@ -1,7 +1,6 @@
 package rxpattern;
 
 import rxpattern.RxPattern;
-import uhx.sys.seri.Category as GC;
 import rxpattern.UnicodePatternUtil.printCategory;
 
 @:notNull

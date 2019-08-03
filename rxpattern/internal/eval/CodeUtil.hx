@@ -7,9 +7,9 @@ class CodeUtil {
 
     #if (eval || macro)
     public static function __init__() {
-        trace( Context.getDefines() );
-        trace( ES_, ES_.defined(), ES_.value() );
-        trace( NodeJS, NodeJS.defined() );
+        //trace( Context.getDefines() );
+        //trace( ES_, ES_.defined(), ES_.value() );
+        //trace( NodeJS, NodeJS.defined() );
     }
     #end
 

@@ -1,46 +1,45 @@
 package rxpattern;
 
 @:forward(length, iterator)
-abstract IntSet(Array<Int>)
-{
-    @:extern
-    public inline function new(a)
+abstract IntSet(Array<Int>) {
+
+    public inline function new(a) {
         this = a;
+    }
 
-    @:extern
-    private inline function asArray(): Array<Int>
+    private inline function asArray():Array<Int> {
         return this;
+    }
 
-    @:extern
-    public static inline function empty()
+    public static inline function empty() {
         return new IntSet([]);
+    }
 
-    @:extern
-    public static inline function singleton(x: Int)
+    public static inline function singleton(x:Int) {
         return new IntSet([x]);
+    }
 
-    @:extern
-    public static inline function fromRange(from: Int, to: Int)
+    public static inline function fromRange(from:Int, to:Int) {
         return new IntSet([for (x in from ... to) x]);
+    }
 
-    public static inline function fromCodePointIterator(it: Iterator<unifill.CodePoint>)
-    {
+    public static inline function fromCodePointIterator(it:Iterator<unifill.CodePoint>) {
         var set = empty();
         for (x in it) {
             set.add(x);
         }
         return set;
     }
-    public static inline function fromIterable(a: Iterable<Int>)
-    {
+
+    public static inline function fromIterable(a:Iterable<Int>) {
         var set = empty();
         for (x in a) {
             set.add(x);
         }
         return set;
     }
-    public function has(x: Int)
-    {
+
+    public function has(x:Int) {
         var u = this.length;
         var l = 0;
         while (l < u) {
@@ -55,8 +54,8 @@ abstract IntSet(Array<Int>)
         }
         return false;
     }
-    public function add(x: Int)
-    {
+
+    public function add(x:Int) {
         var u = this.length;
         var l = 0;
         while (l < u) {
@@ -72,8 +71,8 @@ abstract IntSet(Array<Int>)
         }
         this.insert(l, x);
     }
-    public function remove(x: Int)
-    {
+
+    public function remove(x:Int) {
         var u = this.length;
         var l = 0;
         while (l < u) {
@@ -89,8 +88,7 @@ abstract IntSet(Array<Int>)
         }
     }
 
-    public static function intersection(x: IntSet, y: IntSet)
-    {
+    public static function intersection(x:IntSet, y:IntSet) {
         var xa = x.asArray();
         var ya = y.asArray();
         var xl = xa.length;
@@ -114,8 +112,7 @@ abstract IntSet(Array<Int>)
         return new IntSet(a);
     }
 
-    public static function union(x: IntSet, y: IntSet)
-    {
+    public static function union(x:IntSet, y:IntSet) {
         var xa = x.asArray();
         var ya = y.asArray();
         var xl = xa.length;
@@ -147,8 +144,7 @@ abstract IntSet(Array<Int>)
         return new IntSet(a);
     }
 
-    public static function difference(x: IntSet, y: IntSet)
-    {
+    public static function difference(x:IntSet, y:IntSet) {
         var xa = x.asArray();
         var ya = y.asArray();
         var xl = xa.length;
@@ -174,4 +170,5 @@ abstract IntSet(Array<Int>)
         }
         return new IntSet(a);
     }
+
 }

@@ -13,8 +13,6 @@ typedef RangeUtil =
     rxpattern.internal.python.RangeUtil
 #elseif hl
     rxpattern.internal.hl.RangeUtil
-/*#elseif (java && java && java_ver < 7)
-    rxpattern.internal.utf16.RangeUtil*/
 #else
     rxpattern.internal.std.RangeUtil
 #end

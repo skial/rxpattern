@@ -22,38 +22,43 @@ abstract CharSet(Ranges) from Ranges to Ranges {
         for (i in new CodePointIter(s)) {
             if (!rs.has(i.toInt())) rs.add(i.toInt());
         }
-        //trace( rs.values.map(r -> '${r.min}::${r.max}') );
         var c = new CharSet(rs);
         return c;
     }
 
-    macro public static function fromString(x:ExprOf<String>) {
+    public static macro function fromString(x:ExprOf<String>) {
         return rxpattern.internal.Macros._fromString(x);
     }
 
-    public inline function getCodePointSet()
+    public inline function getCodePointSet(){
         return this;
+    }
 
-    public inline function hasCodePoint(x:Int)
+    public inline function hasCodePoint(x:Int){
         return this.has(x);
+    }
 
-    public inline function has(c:String)
+    public inline function has(c:String){
         return this.has(singleCodePoint(c));
+    }
 
-    public inline function add(c:String)
+    public inline function add(c:String) {
         this.add(singleCodePoint(c));
+    }
 
-    public inline function removeCodePoint(x:Int)
+    public inline function removeCodePoint(x:Int) {
         this.remove(x);
+    }
 
-    public inline function remove(c:String)
+    public inline function remove(c:String) {
         this.remove(singleCodePoint(c));
+    }
 
-    public inline function codePointIterator():Iterator<Int>
+    public inline function codePointIterator():Iterator<Int> {
         return this.iterator();
+    }
 
-    private static function singleCodePoint(s: String): Int
-    {
+    private static function singleCodePoint(s:String):Int {
         #if (eval || macro)
             if (s.length == 0) {
                 throw CharSet_NotCodePoint;

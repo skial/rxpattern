@@ -22,29 +22,8 @@ enum abstract Define(String) from String to String {
     var ES_ = 'js_es';
     var JavaVersion = 'java_ver';
 
-    private static macro function includeDefines():ExprOf<Array<Define>> {
-        var r = [];
-        if (JavaScript.defined()) r.push(macro $v{JavaScript});
-        if (CSharp.defined()) r.push(macro $v{CSharp});
-        if (Java.defined()) r.push(macro $v{Java});
-        if (Python.defined()) r.push(macro $v{Python});
-        if (Neko.defined()) r.push(macro $v{Neko});
-        if (Cpp.defined()) r.push(macro $v{Cpp});
-        if (Php.defined()) r.push(macro $v{Php});
-        if (Lua.defined()) r.push(macro $v{Lua});
-        if (Flash.defined()) r.push(macro $v{Flash});
-        if (HashLink.defined()) r.push(macro $v{HashLink});
-        if (Interp.defined()) r.push(macro $v{Interp});
-        if (NodeJS.defined()) r.push(macro $v{NodeJS});
-        return macro $a{r};
-    }
-
     @:to public inline function defined():Bool {
-        #if (macro || eval)
         return Context.defined(this);
-        #else 
-        return includeDefines().indexOf(this) > -1;
-        #end
     }
 
     public inline function value():Null<String> {
