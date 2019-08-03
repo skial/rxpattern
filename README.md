@@ -56,7 +56,7 @@ This library provides the following classes:
 
 - `rxpattern.RxPattern`
 - `rxpattern.CharSet`
-- `rxpattern.GeneralCategory`
+- `rxpattern.Category`
 
 ### Basic Patterns
 
@@ -179,44 +179,76 @@ The variable `charset` is of type `CharSet`.
 This library provides `RxPattern` values corresponding Unicode general categories.
 
 If Unicode properties (or, `\p{}` patterns) are available, they are used.
-Otherwise, patterns generated from the data of Unicode 8.0.0 are used.
+Otherwise, patterns generated from the latest supported Unicode data in [seri](https://github.com/skial/seri) will be used.
 
-- `GeneralCategory.Letter : RxPattern`
-- `GeneralCategory.Uppercase_Letter : RxPattern`
-- `GeneralCategory.Lowercase_Letter : RxPattern`
-- `GeneralCategory.Titlecase_Letter : RxPattern`
-- `GeneralCategory.Cased_Letter : RxPattern`
-- `GeneralCategory.Modifier_Letter : RxPattern`
-- `GeneralCategory.Other_Letter : RxPattern`
-- `GeneralCategory.Mark : RxPattern`
-- `GeneralCategory.Nonspacing_Mark : RxPattern`
-- `GeneralCategory.Spacing_Mark : RxPattern`
-- `GeneralCategory.Enclosing_Mark : RxPattern`
-- `GeneralCategory.Number : RxPattern`
-- `GeneralCategory.Decimal_Number : RxPattern`
-- `GeneralCategory.Letter_Number : RxPattern`
-- `GeneralCategory.Other_Number : RxPattern`
-- `GeneralCategory.Punctuation : RxPattern`
-- `GeneralCategory.Connector_Punctuation : RxPattern`
-- `GeneralCategory.Dash_Punctuation : RxPattern`
-- `GeneralCategory.Open_Punctuaiton : RxPattern`
-- `GeneralCategory.Close_Punctuation : RxPattern`
-- `GeneralCategory.Initial_Punctuation : RxPattern`
-- `GeneralCategory.Final_Punctuation : RxPattern`
-- `GeneralCategory.Other_Punctuation : RxPattern`
-- `GeneralCategory.Symbol : RxPattern`
-- `GeneralCategory.Math_Symbol : RxPattern`
-- `GeneralCategory.Currency_Symbol : RxPattern`
-- `GeneralCategory.Modifier_Symbol : RxPattern`
-- `GeneralCategory.Other_Symbol : RxPattern`
-- `GeneralCategory.Separator : RxPattern`
-- `GeneralCategory.Space_Separator : RxPattern`
-- `GeneralCategory.Line_Separator : RxPattern`
-- `GeneralCategory.Paragraph_Separator : RxPattern`
-- `GeneralCategory.Other : RxPattern`
-- `GeneralCategory.Control : RxPattern`
-- `GeneralCategory.Format : RxPattern`
-- `GeneralCategory.Private_Use : RxPattern`
+```haxe
+abstract Category {
+    static var Cc;
+    static var Cf;
+    static var Co;
+    static var Cs;
+    static var C;
+    static var Ll;
+    static var Lm;
+    static var Lo;
+    static var Lt;
+    static var Lu;
+    static var L;
+    static var Mc;
+    static var Me;
+    static var Mn;
+    static var M;
+    static var Nd;
+    static var Nl;
+    static var No;
+    static var N;
+    static var Pc;
+    static var Pd;
+    static var Pe;
+    static var Pf;
+    static var Pi;
+    static var Po;
+    static var Ps;
+    static var P;
+    static var Sc;
+    static var Sk;
+    static var Sm;
+    static var So;
+    static var S;
+    static var Zl;
+    static var Zp;
+    static var Zs;
+    static var Z;
+    static var Letter_UpperCase;
+    static var Letter_LowerCase;
+    static var Letter_TitleCase;
+    static var Letter_Modifier;
+    static var Mark_NonSpacing;
+    static var Mark_SpacingCombining;
+    static var Mark_Enclosing;
+    static var Number_DecimalDigit;
+    static var Number_Letter;
+    static var Number_Other;
+    static var Punctuation_Connector;
+    static var Punctuation_Dash;
+    static var Punctuation_Open;
+    static var Punctuation_Close;
+    static var Punctuation_InitialQuote;
+    static var Punctuation_FinalQuote;
+    static var Punctuation_Other;
+    static var Symbol_Math;
+    static var Symbol_Currency;
+    static var Symbol_Modifier;
+    static var Symbol_Other;
+    static var Separator_Space;
+    static var Separator_Line;
+    static var Separator_Paragraph;
+    static var Other_Control;
+    static var Other_Format;
+    static var Other_Surrogate;
+    static var Other_PrivateUse;
+}
+```
 
 ### Raw Pattern Strings
 
