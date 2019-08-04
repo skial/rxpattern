@@ -90,6 +90,7 @@ abstract RxPattern(Pattern) {
             #if (js || cs)
                 (AtStart >> AnyCodePoint >> AtEnd).build();
             #else
+                // `s` flag not supported on javascript.
                 new rxpattern.internal.EReg("^.$", 'us');
             #end
     #end
