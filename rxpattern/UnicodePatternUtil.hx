@@ -86,12 +86,13 @@ class UnicodePatternUtil
             Context.error('$category is not a valid value of uhx.sys.seri.Category.', Context.currentPos());
             return null;
         } else {
-            var pattern = if (!(NodeJS || (ES_ && ES_ > 5)) && (jsStyle || pythonStyle || Cpp)) {
+            // Single letter categories are not supported for JavaScript/Browsers.
+            var pattern = if (((JavaScript && category.length == 1) || !(NodeJS || (ES_ && ES_ > 5))) && (jsStyle || pythonStyle || Cpp)) {
                 var value = RangeUtil.printRanges(range, false).get();
                 macro new RxPattern.Disjunction($v{value});
 
             } else {
-                macro new RxPattern.Atom($v{'\\p{$category}'});
+                macro new RxPattern.Atom($v{"\\p{" + category + "}"});
             }
             
             return pattern;

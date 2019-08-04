@@ -87,7 +87,7 @@ abstract RxPattern(Pattern) {
     #if !(eval || macro)
         private static var rxSpecialChar = ~/^[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]$/;
         private static var rxSingleCodePoint =
-            #if ((js && !(nodejs || js_es > 5)) || cs)
+            #if (js || cs)
                 (AtStart >> AnyCodePoint >> AtEnd).build();
             #else
                 new rxpattern.internal.EReg("^.$", 'us');
@@ -158,9 +158,9 @@ abstract RxPattern(Pattern) {
 
     static inline function get_AnyExceptNewLine()
     #if ((js && !(nodejs || js_es > 5)))
-        return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|(?![\\uD800-\\uDFFF]).");
+        return Disjunction(UnicodePatternUtil.translateUnicodeEscape("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|(?![\\uD800-\\uDFFF])."));
     #elseif (cs)
-        return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|[^\\r\\n\\u2028\\u2029\\uD800-\\uDFFF]");
+        return Disjunction(UnicodePatternUtil.translateUnicodeEscape("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|[^\\r\\n\\u2028\\u2029\\uD800-\\uDFFF]"));
     #else
         return Atom(".");
     #end
@@ -191,7 +191,7 @@ abstract RxPattern(Pattern) {
     public static var AtEnd(get, never):Term; 
     
     static inline function get_AtStart()
-    #if (python || neko || cpp || php || lua || java || cs || flash || hl || (eval || macro))
+    #if !js
         return Term("\\A");
     #else
         return Term("^");
@@ -200,7 +200,7 @@ abstract RxPattern(Pattern) {
     static inline function get_AtEnd()
     #if python
         return Term("\\Z");
-    #elseif (neko || cpp || php || lua || java || cs || flash || hl || (eval || macro))
+    #elseif !js
         return Term("\\z");
     #else
         return Term("$");
@@ -214,17 +214,17 @@ abstract RxPattern(Pattern) {
         return Term("(?!" + e.toDisjunction() + ")");
     }
 
-    #if js
+    /*#if js
         public static var Never(get, never):Atom;
         static inline function get_Never() {
             return Atom("[]");
         }
-    #else
+    #else*/
         public static var Never(get, never):Term;
         static inline function get_Never(){
             return Term("(?!)");
         }
-    #end
+    //#end
 
     static function escapeSetChar(c:String) {
         return switch (c) {
