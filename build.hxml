@@ -26,6 +26,12 @@
 
 --next
 
+-D js-es=6
+--macro includeFile("regenerate.js")
+-js bin/rx6.js
+
+--next
+
 -neko bin/rx.n
 
 --next
@@ -43,6 +49,7 @@
 --next
 
 ## Java version 7+
+## =D java-ver=7 ## default
 -java bin/java
 
 --next

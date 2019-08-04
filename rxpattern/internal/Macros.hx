@@ -32,7 +32,7 @@ class Macros {
 
     public static function _Char(x:ExprOf<String>):Null<Expr> {
         var pos = x.pos;
-        var useSurrogates = (!NodeJS && JavaScript) || CSharp;
+        var useSurrogates = (JavaScript && !(NodeJS || ES_ > 5)) || CSharp;
         
         switch x.expr {
             case EConst(CString(v)):
@@ -121,7 +121,7 @@ class Macros {
                     }
                     var escaped = RxPattern.escapeString(v);
                     var expr = macro @:pos(pos) $v{escaped};
-                    var useSurrogates = (!NodeJS && JavaScript) || CSharp;
+                    var useSurrogates = (JavaScript && !(NodeJS || ES_ > 5)) || CSharp;
 
                     var y = InternalEncoding.codePointAt(v, 0);
                     var isSingleCodePoint = CodePoint.fromInt(y) == v;

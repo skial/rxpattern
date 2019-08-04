@@ -1,6 +1,6 @@
 package rxpattern.internal;
 
-#if nodejs
+#if (js && (nodejs || js_es > 5))
 import js.lib.RegExp;
 #end
 
@@ -14,14 +14,14 @@ import js.lib.RegExp;
     }
 }
 
-typedef ERegImpl = #if !(nodejs)
+typedef ERegImpl = #if !(js && (nodejs || js_es > 5))
     std.EReg
-#elseif (nodejs && js)
+#elseif (js && (nodejs || js_es > 5))
     _JsEReg
 #end
 ;
 
-#if nodejs
+#if (js && (nodejs || js_es > 5))
 class _JsEReg {
 
 	var r : HaxeRegExp;

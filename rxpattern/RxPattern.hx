@@ -29,7 +29,7 @@ enum abstract Precedence(Int) {
 @:unreflective
 @:allow(rxpattern.RxPattern)
 class Pattern {
-    
+
     var pattern(default, null):String;
     var prec(default, null):Precedence;
 
@@ -43,7 +43,7 @@ class Pattern {
             ? "(?:" + this.pattern + ")"
             :this.pattern;
     }
-    
+
 }
 
 abstract RxPattern(Pattern) {
@@ -68,17 +68,17 @@ abstract RxPattern(Pattern) {
         return new Atom(pattern);
     }
 
-    public static var AnyCodePoint(get, never):#if ((js && !nodejs) || cs) Disjunction #else Atom #end;
+    public static var AnyCodePoint(get, never):#if ((js && !(nodejs || js_es > 5)) || cs) Disjunction #else Atom #end;
 
     #if !(eval || macro) inline #end
     static function get_AnyCodePoint()
-        #if ((js && !nodejs) || cs)
+        #if ((js && !(nodejs || js_es > 5)) || cs)
             return Disjunction(UnicodePatternUtil.translateUnicodeEscape("[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]"));
         #elseif flash
             return Atom("[\u0000-\u{10FFFF}]");
         #elseif (eval || hl || neko || php || java)
             return Atom("(?s:.)");
-        #elseif (python || nodejs)
+        #elseif (python || (js && nodejs) || (js && js_es > 5))
             return Atom("[\\S\\s]");
         #else
             return Atom(UnicodePatternUtil.translateUnicodeEscape("[\\u0000-\\u10FFFF]"));
@@ -87,7 +87,7 @@ abstract RxPattern(Pattern) {
     #if !(eval || macro)
         private static var rxSpecialChar = ~/^[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]$/;
         private static var rxSingleCodePoint =
-            #if ((js && !nodejs) || cs)
+            #if ((js && !(nodejs || js_es > 5)) || cs)
                 (AtStart >> AnyCodePoint >> AtEnd).build();
             #else
                 new rxpattern.internal.EReg("^.$", 'us');
@@ -129,7 +129,7 @@ abstract RxPattern(Pattern) {
         return ~/[\^\$\\\.\*\+\?\(\)\[\]\{\}\|]/g.map(s, e -> "\\" + e.matched(0));
     }
 
-    #if ((js && !nodejs) || cs)
+    #if ((js && !(nodejs || js_es > 5)) || cs)
         public static function CharS(s:String):RxPattern {
             #if debug
             if (!rxSingleCodePoint.match(s)) {
@@ -154,10 +154,10 @@ abstract RxPattern(Pattern) {
         return rxpattern.internal.Macros._String(x);
     }
 
-    public static var AnyExceptNewLine(get, never):#if ((js && !nodejs) || cs) Disjunction #else Atom #end;
+    public static var AnyExceptNewLine(get, never):#if ((js && !(nodejs || js_es > 5)) || cs) Disjunction #else Atom #end;
 
     static inline function get_AnyExceptNewLine()
-    #if (js && !nodejs)
+    #if ((js && !(nodejs || js_es > 5)))
         return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|(?![\\uD800-\\uDFFF]).");
     #elseif (cs)
         return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|[^\\r\\n\\u2028\\u2029\\uD800-\\uDFFF]");
@@ -235,7 +235,7 @@ abstract RxPattern(Pattern) {
         }
     }
     
-    #if ((js && !nodejs) || cs || (eval || macro))
+    #if ((js && !(nodejs || js_es > 5)) || cs || (eval || macro))
         static function escapeChar_surrogate(x) {
             return if (0xD800 <= x && x <= 0xDFFF) {
                 CodeUtil.printCode(x);
@@ -262,7 +262,7 @@ abstract RxPattern(Pattern) {
         return rs;
     }
 
-    #if ((js && !nodejs) || cs || eval || macro)
+    #if ((js && !(nodejs || js_es > 5)) || cs || eval || macro)
         private static function CharSet_surrogate(set:CharSet):RxPattern {
             var rs = RangeUtil.printRanges(set, false);
             return rs;
@@ -277,12 +277,12 @@ abstract RxPattern(Pattern) {
     public static inline function CharSet(set:CharSet) {
         return 
         #if (eval || macro)
-            if ((!NodeJS && JavaScript) || CSharp) {
+            if ((JavaScript && !(NodeJS || ES_ > 5)) || CSharp) {
                 CharSet_surrogate(set);
             } else {
                 SimpleCharSet(set, false, false);
             }
-        #elseif ((js && !nodejs) || cs)
+        #elseif ((js && !(nodejs || js_es > 5)) || cs)
             CharSet_surrogate(set);
         #else
             SimpleCharSet(set, false, false);
@@ -292,12 +292,12 @@ abstract RxPattern(Pattern) {
     public static inline function NotInSet(set:CharSet) {
         return 
         #if (eval || macro)
-            if ((JavaScript && !NodeJS) || CSharp) {
+            if ((JavaScript && !(NodeJS || ES_ > 5)) || CSharp) {
                 NotInSet_surrogate(set);
             } else {
                 SimpleCharSet(set, true, false);
             }
-        #elseif ((js && !nodejs) || cs)
+        #elseif ((js && !(nodejs || js_es > 5)) || cs)
             NotInSet_surrogate(set);
         #else
             SimpleCharSet(set, true, false);
@@ -357,7 +357,7 @@ abstract RxPattern(Pattern) {
         return this.prec;
     }
 
-    public inline function build(options = #if (js && !nodejs) '' #else "u" #end){
+    public inline function build(options = #if ((js && !(nodejs || js_es > 5))) '' #else "u" #end){
         return new rxpattern.internal.EReg(this.pattern, options);
     }
 
@@ -365,7 +365,7 @@ abstract RxPattern(Pattern) {
         return x.get();
     }
 
-    public static inline function buildEReg(x, options = #if (js && !nodejs) '' #else "u" #end) {
+    public static inline function buildEReg(x, options = #if ((js && !(nodejs || js_es > 5))) '' #else "u" #end) {
         return new rxpattern.internal.EReg(getPattern(x), options);
     }
 
@@ -424,7 +424,7 @@ abstract Disjunction(String) {
 
     // Accessors
     public inline function get() return this;
-    public inline function build(options = #if (js && !nodejs) '' #else "u" #end) {
+    public inline function build(options = #if ((js && !(nodejs || js_es > 5))) '' #else "u" #end) {
         return new rxpattern.internal.EReg(this, options);
     }
 
