@@ -301,3 +301,6 @@ The variable `pattern` is of type `RxPattern`.
                   | "(" Disjunction ")"
                   | "(?:" Disjunction ")"
 
+## Notes
+
+The file/library [`regenerate.js`](https://github.com/mathiasbynens/regenerate) is created by [@mathiasbynens](https://github.com/mathiasbynens). Core functionality was ported to Haxe, see [`utf16/RangeUtil.hx`](https://github.com/skial/rxpattern/blob/master/rxpattern/internal/utf16/RangeUtil.hx).

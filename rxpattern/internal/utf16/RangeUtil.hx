@@ -31,111 +31,111 @@ class RangeUtil {
             if (range.min < HI.min) {
 
                 // The range starts and ends before the high surrogate range.
-				// E.g. (0, 0x10).
+                // E.g. (0, 0x10).
                 if (range.max < HI.min) {
                     bmp.push(range.copy());
                 }
 
                 // The range starts before the high surrogate range and ends within it.
-				// E.g. (0, 0xD855).
-				if (range.max >= HI.min && range.max <= HI.max) {
-					bmp.push(new Range(range.min, HI.min-1));
-					loneHi.push(new Range(HI.min, range.max));
-				}
+                // E.g. (0, 0xD855).
+                if (range.max >= HI.min && range.max <= HI.max) {
+                    bmp.push(new Range(range.min, HI.min-1));
+                    loneHi.push(new Range(HI.min, range.max));
+                }
 
                 // The range starts before the high surrogate range and ends in the low
-				// surrogate range. E.g. (0, 0xDCFF).
-				if (range.max >= LO.min && range.max <= LO.max) {
-					bmp.push(new Range(range.min, HI.min-1));
-					loneHi.push(new Range(HI.min, HI.max));
-					loneLo.push(new Range(LO.min, range.max));
-				}
+                // surrogate range. E.g. (0, 0xDCFF).
+                if (range.max >= LO.min && range.max <= LO.max) {
+                    bmp.push(new Range(range.min, HI.min-1));
+                    loneHi.push(new Range(HI.min, HI.max));
+                    loneLo.push(new Range(LO.min, range.max));
+                }
 
                 // The range starts before the high surrogate range and ends after the
-				// low surrogate range. E.g. (0, 0x10FFFF).
-				if (range.max > LO.max) {
-					bmp.push(new Range(range.min, HI.min-1));
-					loneHi.push(new Range(HI.min, HI.max));
-					loneLo.push(new Range(LO.min, LO.max));
-					if (range.max <= 0xFFFF) {
-						bmp.push(new Range(LO.max+1, range.max));
+                // low surrogate range. E.g. (0, 0x10FFFF).
+                if (range.max > LO.max) {
+                    bmp.push(new Range(range.min, HI.min-1));
+                    loneHi.push(new Range(HI.min, HI.max));
+                    loneLo.push(new Range(LO.min, LO.max));
+                    if (range.max <= 0xFFFF) {
+                        bmp.push(new Range(LO.max+1, range.max));
 
-					} else {
-						bmp.push(new Range(LO.max+1, 0xFFFF));
-						astral.push(new Range(0xFFFF+1, range.max));
+                    } else {
+                        bmp.push(new Range(LO.max+1, 0xFFFF));
+                        astral.push(new Range(0xFFFF+1, range.max));
 
-					}
-				}
+                    }
+                }
 
             } else if (range.min >= HI.min && range.min <= HI.max) {
 
                 // The range starts and ends in the high surrogate range.
-				// E.g. (0xD855, 0xD866).
-				if (range.max >= HI.min && range.max <= HI.max) {
-					loneHi.push(range.copy());
-				}
+                // E.g. (0xD855, 0xD866).
+                if (range.max >= HI.min && range.max <= HI.max) {
+                    loneHi.push(range.copy());
+                }
 
-				// The range starts in the high surrogate range and ends in the low
-				// surrogate range. E.g. (0xD855, 0xDCFF).
-				if (range.max >= LO.min && range.max <= LO.max) {
-					loneHi.push(new Range(range.min, HI.max));
-					loneLo.push(new Range(LO.min, range.max));
-				}
+                // The range starts in the high surrogate range and ends in the low
+                // surrogate range. E.g. (0xD855, 0xDCFF).
+                if (range.max >= LO.min && range.max <= LO.max) {
+                    loneHi.push(new Range(range.min, HI.max));
+                    loneLo.push(new Range(LO.min, range.max));
+                }
 
-				// The range starts in the high surrogate range and ends after the low
-				// surrogate range. E.g. (0xD855, 0x10FFFF).
-				if (range.max > LO.max) {
-					loneHi.push(new Range(range.min, HI.max));
-					loneLo.push(new Range(LO.min, LO.max));
-					if (range.max <= 0xFFFF) {
-						bmp.push(new Range(LO.max+1, range.max));
+                // The range starts in the high surrogate range and ends after the low
+                // surrogate range. E.g. (0xD855, 0x10FFFF).
+                if (range.max > LO.max) {
+                    loneHi.push(new Range(range.min, HI.max));
+                    loneLo.push(new Range(LO.min, LO.max));
+                    if (range.max <= 0xFFFF) {
+                        bmp.push(new Range(LO.max+1, range.max));
 
-					} else {
-						bmp.push(new Range(LO.max+1, 0xFFFF));
-						astral.push(new Range(0xFFFF+1, range.max));
+                    } else {
+                        bmp.push(new Range(LO.max+1, 0xFFFF));
+                        astral.push(new Range(0xFFFF+1, range.max));
 
-					}
-				}
+                    }
+                }
 
             } else if (range.min >= LO.min && range.min <= LO.max) {
 
                 // The range starts and ends in the low surrogate range.
-				// E.g. (0xDCFF, 0xDDFF).
-				if (range.max >= LO.min && range.max <= LO.max) {
-					loneLo.push(range.copy());
-				}
+                // E.g. (0xDCFF, 0xDDFF).
+                if (range.max >= LO.min && range.max <= LO.max) {
+                    loneLo.push(range.copy());
+                }
 
-				// The range starts in the low surrogate range and ends after the low
-				// surrogate range. E.g. (0xDCFF, 0x10FFFF).
-				if (range.max > LO.max) {
-					loneLo.push(new Range(range.min, LO.max));
-					if (range.max <= 0xFFFF) {
-						bmp.push(new Range(LO.max+1, range.max));
+                // The range starts in the low surrogate range and ends after the low
+                // surrogate range. E.g. (0xDCFF, 0x10FFFF).
+                if (range.max > LO.max) {
+                    loneLo.push(new Range(range.min, LO.max));
+                    if (range.max <= 0xFFFF) {
+                        bmp.push(new Range(LO.max+1, range.max));
 
-					} else {
-						bmp.push(new Range(LO.max+1, 0xFFFF));
-						astral.push(new Range(0xFFFF+1, range.max));
+                    } else {
+                        bmp.push(new Range(LO.max+1, 0xFFFF));
+                        astral.push(new Range(0xFFFF+1, range.max));
 
-					}
-				}
+                    }
+                }
 
             } else if (range.min > LO.max && range.min <= 0xFFFF) {
 
                 // The range starts and ends after the low surrogate range.
-				// E.g. (0xFFAA, 0x10FFFF).
-				if (range.max <= 0xFFFF) {
-					bmp.push(range.copy());
+                // E.g. (0xFFAA, 0x10FFFF).
+                if (range.max <= 0xFFFF) {
+                    bmp.push(range.copy());
 
-				} else {
-					bmp.push(new Range(range.min, 0xFFFF));
-					astral.push(new Range(0xFFFF+1, range.max));
+                } else {
+                    bmp.push(new Range(range.min, 0xFFFF));
+                    astral.push(new Range(0xFFFF+1, range.max));
 
-				}
+                }
 
             } else {
 
                 // The range starts and ends in the astral range.
-				astral.push(range.copy());
+                astral.push(range.copy());
 
             }
 
@@ -170,63 +170,63 @@ class RangeUtil {
             var complete = false;
 
             // Append the previous high-surrogate-to-low-surrogate mappings.
-			// Step 1: `(startHigh, startLow)` to `(startHigh, LOW_SURROGATE_MAX)`.
-			if (
-				start.max == end.max ||
-				startsWithLowestLo && endsWithHighestLo
-			) {
-				surrogateMappings.push({
-					a:new Range(start.max, end.max),
-					b:new Range(start.min, end.min)
-				});
-				complete = true;
-			} else {
-				surrogateMappings.push({
-					a:new Range(start.max, start.max),
-					b:new Range(start.min, LO.max)
+            // Step 1: `(startHigh, startLow)` to `(startHigh, LOW_SURROGATE_MAX)`.
+            if (
+                start.max == end.max ||
+                startsWithLowestLo && endsWithHighestLo
+            ) {
+                surrogateMappings.push({
+                    a:new Range(start.max, end.max),
+                    b:new Range(start.min, end.min)
                 });
-			}
-
-			// Step 2: `(startHigh + 1, LOW_SURROGATE_MIN)` to
-			// `(endHigh - 1, LOW_SURROGATE_MAX)`.
-			if (!complete && start.max+1 < end.max) {
-				if (endsWithHighestLo) {
-					// Combine step 2 and step 3.
-					surrogateMappings.push({
-						a:new Range(start.max+1, end.max),
-						b:new Range(LO.min, end.min)
-                    });
-					complete = true;
-				} else {
-					surrogateMappings.push({
-						a:new Range(start.max+1, end.max),
-						b:new Range(LO.min, LO.max)
-                    });
-				}
-			}
-
-			// Step 3. `(endHigh, LOW_SURROGATE_MIN)` to `(endHigh, endLow)`.
-			if (!complete) {
-				surrogateMappings.push({
-					a:new Range(end.max, end.max),
-					b:new Range(LO.min, end.min)
+                complete = true;
+            } else {
+                surrogateMappings.push({
+                    a:new Range(start.max, start.max),
+                    b:new Range(start.min, LO.max)
                 });
-			}
+            }
+
+            // Step 2: `(startHigh + 1, LOW_SURROGATE_MIN)` to
+            // `(endHigh - 1, LOW_SURROGATE_MAX)`.
+            if (!complete && start.max+1 < end.max) {
+                if (endsWithHighestLo) {
+                    // Combine step 2 and step 3.
+                    surrogateMappings.push({
+                        a:new Range(start.max+1, end.max),
+                        b:new Range(LO.min, end.min)
+                    });
+                    complete = true;
+                } else {
+                    surrogateMappings.push({
+                        a:new Range(start.max+1, end.max),
+                        b:new Range(LO.min, LO.max)
+                    });
+                }
+            }
+
+            // Step 3. `(endHigh, LOW_SURROGATE_MIN)` to `(endHigh, endLow)`.
+            if (!complete) {
+                surrogateMappings.push({
+                    a:new Range(end.max, end.max),
+                    b:new Range(LO.min, end.min)
+                });
+            }
 
             idx++;
 
         }
         // The format of `surrogateMappings` is as follows:
-		//
-		//     [ surrogateMapping1, surrogateMapping2 ]
-		//
-		// i.e.:
-		//
-		//     [
-		//       [ highSurrogates1, lowSurrogates1 ],
-		//       [ highSurrogates2, lowSurrogates2 ]
-		//     ]
-		return optimizeSurrogateMappings(surrogateMappings);
+        //
+        //     [ surrogateMapping1, surrogateMapping2 ]
+        //
+        // i.e.:
+        //
+        //     [
+        //       [ highSurrogates1, lowSurrogates1 ],
+        //       [ highSurrogates2, lowSurrogates2 ]
+        //     ]
+        return optimizeSurrogateMappings(surrogateMappings);
     }
 
     // @see https://github.com/mathiasbynens/regenerate/blob/master/regenerate.js#L794
