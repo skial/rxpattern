@@ -26,7 +26,7 @@ class UnicodePatternUtil
      * Perl-like (Neko VM, C++, PHP, Lua and Java): \x{HHHHH}
      * JavaScript, C#, Flash: \uHHHH
      */
-    macro public static function translateUnicodeEscape(s:String):ExprOf<String> {
+    macro public static function translate(s:String):ExprOf<String> {
         var i = 0;
         var pos = Context.currentPos();
         var translatedBuf = new StringBuf();

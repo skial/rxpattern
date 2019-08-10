@@ -57,10 +57,10 @@
 -D java-ver=6
 -java bin/java6
 
-#--next
-#
-#-D jvm
-#-java bin/jvm
+--next
+
+-D jvm
+-java bin/jvm
 
 --next
 

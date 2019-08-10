@@ -15,6 +15,8 @@ import haxe.macro.Expr;
 import rxpattern.internal.Define;
 #end
 
+using rxpattern.UnicodePatternUtil;
+
 // An enum to describe the context of the expression
 enum abstract Precedence(Int) {
     var Disjunction = 0;
@@ -46,7 +48,7 @@ class Pattern {
 
 }
 
-abstract RxPattern(Pattern) {
+@:notNull abstract RxPattern(Pattern) {
 
     public inline function new(pattern:String, prec:Precedence) {
         this = new Pattern(pattern, prec);
@@ -73,7 +75,7 @@ abstract RxPattern(Pattern) {
     #if !(eval || macro) inline #end
     static function get_AnyCodePoint()
         #if ((js && !(nodejs || js_es > 5)) || cs)
-            return Disjunction(UnicodePatternUtil.translateUnicodeEscape("[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]"));
+            return Disjunction("[\\u0000-\\uD7FF\\uE000-\\uFFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]".translate());
         #elseif flash
             return Atom("[\u0000-\u{10FFFF}]");
         #elseif (eval || hl || neko || php || java)
@@ -81,7 +83,7 @@ abstract RxPattern(Pattern) {
         #elseif (python || (js && nodejs) || (js && js_es > 5))
             return Atom("[\\S\\s]");
         #else
-            return Atom(UnicodePatternUtil.translateUnicodeEscape("[\\u0000-\\u10FFFF]"));
+            return Atom("[\\u0000-\\u10FFFF]".translate());
         #end
 
     #if !(eval || macro)
@@ -159,9 +161,9 @@ abstract RxPattern(Pattern) {
 
     static inline function get_AnyExceptNewLine()
     #if ((js && !(nodejs || js_es > 5)))
-        return Disjunction(UnicodePatternUtil.translateUnicodeEscape("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|(?![\\uD800-\\uDFFF])."));
+        return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|(?![\\uD800-\\uDFFF]).".translate());
     #elseif (cs)
-        return Disjunction(UnicodePatternUtil.translateUnicodeEscape("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|[^\\r\\n\\u2028\\u2029\\uD800-\\uDFFF]"));
+        return Disjunction("[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]|[^\\r\\n\\u2028\\u2029\\uD800-\\uDFFF]".translate());
     #else
         return Atom(".");
     #end
@@ -175,13 +177,13 @@ abstract RxPattern(Pattern) {
     static inline function get_LineTerminator() {
         /* TODO:U+0085 NEL */
         /* U+2028:Line Separator, U+2029 Paragraph Separator */
-        return Disjunction(UnicodePatternUtil.translateUnicodeEscape("\\r\\n|[\\r\\n\\u2028\\u2029]"));
+        return Disjunction("\\r\\n|[\\r\\n\\u2028\\u2029]".translate());
     }
 
     public static var LineTerminatorChar(get, never):Atom; 
     
     static inline function get_LineTerminatorChar() {
-        return Atom(UnicodePatternUtil.translateUnicodeEscape("[\\r\\n\\u2028\\u2029]"));
+        return Atom("[\\r\\n\\u2028\\u2029]".translate());
     }
 
     public static var Empty(get, never):Alternative; 
@@ -191,14 +193,14 @@ abstract RxPattern(Pattern) {
     public static var AtStart(get, never):Term;
     public static var AtEnd(get, never):Term; 
     
-    static inline function get_AtStart()
+    private static inline function get_AtStart()
     #if !js
         return Term("\\A");
     #else
         return Term("^");
     #end 
     
-    static inline function get_AtEnd()
+    private static inline function get_AtEnd()
     #if python
         return Term("\\Z");
     #elseif !js
@@ -215,94 +217,21 @@ abstract RxPattern(Pattern) {
         return Term("(?!" + e.toDisjunction() + ")");
     }
 
-    /*#if js
-        public static var Never(get, never):Atom;
-        static inline function get_Never() {
-            return Atom("[]");
-        }
-    #else*/
-        public static var Never(get, never):Term;
-        static inline function get_Never(){
-            return Term("(?!)");
-        }
-    //#end
-
-    static function escapeSetChar(c:String) {
-        return switch (c) {
-            case '^' | '-' | '[' | ']' | '\\':
-                '\\' + c;
-            case _:
-                c;
-        }
-    }
-    
-    #if ((js && !(nodejs || js_es > 5)) || cs || (eval || macro))
-        static function escapeChar_surrogate(x) {
-            return if (0xD800 <= x && x <= 0xDFFF) {
-                CodeUtil.printCode(x);
-
-            } else {
-                escapeChar(CodePoint.fromInt(x));
-
-            }
-        }
-
-        static function escapeSetChar_surrogate(x) {
-            return if (0xD800 <= x && x <= 0xDFFF) {
-                CodeUtil.printCode(x);
-
-            } else {
-                escapeSetChar(CodePoint.fromInt(x));
-
-            }
-        }
-    #end
-
-    private static function SimpleCharSet(set:CharSet, invert:Bool, utf16CodeUnits:Bool):RxPattern {
-        var rs = RangeUtil.printRanges(set, invert);
-        return rs;
+    public static var Never(get, never):Term;
+    static inline function get_Never(){
+        return Term("(?!)");
     }
 
-    #if ((js && !(nodejs || js_es > 5)) || cs || eval || macro)
-        private static function CharSet_surrogate(set:CharSet):RxPattern {
-            var rs = RangeUtil.printRanges(set, false);
-            return rs;
-        }
-
-        private static function NotInSet_surrogate(set:CharSet):RxPattern {
-            var rs = RangeUtil.printRanges(set, true);
-            return rs;
-        }
-    #end
+    private static inline function SimpleCharSet(set:CharSet, invert:Bool):RxPattern {
+        return RangeUtil.printRanges(set, invert);
+    }
 
     public static inline function CharSet(set:CharSet) {
-        return 
-        #if (eval || macro)
-            if ((JavaScript && !(NodeJS || ES_ > 5)) || CSharp) {
-                CharSet_surrogate(set);
-            } else {
-                SimpleCharSet(set, false, false);
-            }
-        #elseif ((js && !(nodejs || js_es > 5)) || cs)
-            CharSet_surrogate(set);
-        #else
-            SimpleCharSet(set, false, false);
-        #end
+        return RangeUtil.printRanges(set, false);
     }
     
     public static inline function NotInSet(set:CharSet) {
-        return 
-        #if (eval || macro)
-            if ((JavaScript && !(NodeJS || ES_ > 5)) || CSharp) {
-                NotInSet_surrogate(set);
-            } else {
-                SimpleCharSet(set, true, false);
-            }
-        #elseif ((js && !(nodejs || js_es > 5)) || cs)
-            NotInSet_surrogate(set);
-        #else
-            SimpleCharSet(set, true, false);
-        #end
+        return RangeUtil.printRanges(set, true);
     }
     
     public static macro function CharSetLit(s:ExprOf<String>):ExprOf<RxPattern> {
