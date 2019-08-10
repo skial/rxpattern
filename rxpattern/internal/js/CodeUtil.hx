@@ -26,6 +26,7 @@ class CodeUtil {
     public static function printCode(v:Int):String {
         return switch v {
             case 0: '\\0';
+            case _.isEscapable() => true: '\\' + String.fromCharCode(v);
             case x if (!x.isValidAscii() && x <= 0xFF): '\\x' + StringTools.hex(v, 2);
             case _.isValidAscii() => true: String.fromCharCode(v);
             #if ((nodejs || js_es > 5))

@@ -78,7 +78,7 @@ extern class Regenerate {
         rs.add('\\'.code); // code 92
         rs.add('/'.code); // code 47
 
-        asserts.assert( printRanges(rs, false).get() == '[ !#/\\]' );
+        asserts.assert( printRanges(rs, false).get() == '[ !#\\/\\\\]' );
 
         #if js
         var rg = new Regenerate();

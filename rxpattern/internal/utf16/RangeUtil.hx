@@ -363,7 +363,7 @@ class RangeUtil {
             );
         }
 
-        return RxPattern.Disjunction(results.join('|'));
+        return RxPattern.Atom(results.join('|'));
     }
 
 }

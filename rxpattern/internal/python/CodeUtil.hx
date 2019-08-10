@@ -7,6 +7,10 @@ import rxpattern.internal.std.CodeUtil as StdCodeUtil;
 class CodeUtil {
 
     public static function printCode(v:Int):String {
+        if (inline StdCodeUtil.isEscapable(v)) {
+            return '\\' + String.fromCharCode(v);
+        }
+
         if (inline StdCodeUtil.isValidAscii(v)) {
             return String.fromCharCode(v);
         }
