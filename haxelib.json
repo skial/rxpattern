@@ -1,0 +1,16 @@
+{
+    "name": "rxpattern",
+    "url": "https://github.com/skial/rxpattern",
+    "license": "MIT",
+    "tags": ["cross", "unicode", "string"],
+    "description": "Library provides a human-friendly way to write complex regular expression patterns supporting unicode.",
+    "version": "0.0.1",
+    "releasenote": "",
+    "classPath": "./",
+    "contributors": ["skial"],
+    "dependencies": {
+        "tink_macro": "git:https://github.com/haxetink/tink_macro.git#9018b06279ab8743428f494f19d06f3c1e2a41bc",
+        "tink_unittest": "gh:https://github.com/haxetink/tink_unittest.git#0b0c7de647e522ca42662e2cdfc59e21ed8d4eb4",
+        "seri": "git:https://github.com/skial/seri.git#1f300d66af21f01a83e3dfb209e207c0940ed908"
+    }
+}

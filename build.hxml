@@ -1,4 +1,3 @@
--lib hx3compat
 -lib unifill
 -lib tink_macro
 -lib tink_unittest
