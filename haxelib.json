@@ -11,6 +11,6 @@
     "dependencies": {
         "tink_macro": "git:https://github.com/haxetink/tink_macro.git#9018b06279ab8743428f494f19d06f3c1e2a41bc",
         "tink_unittest": "gh:https://github.com/haxetink/tink_unittest.git#0b0c7de647e522ca42662e2cdfc59e21ed8d4eb4",
-        "seri": "git:https://github.com/skial/seri.git#1f300d66af21f01a83e3dfb209e207c0940ed908"
+        "seri": "git:https://github.com/skial/seri.git#b969bfe5fd5ef4a3ca1646dae6ff09ca907d0f2f"
     }
 }
